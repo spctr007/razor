@@ -25,7 +25,7 @@ No build, lint, or test commands exist.
 | File | Topic |
 |------|-------|
 | `first-principles.html` | First Principles thinking applied to software engineering with AI |
-| `occams-razor.html` | Occam's Razor applied to software design (planned) |
+| `occams-razor.html` | Occam's Razor applied to software design |
 
 When adding a new page, follow the conventions established in `first-principles.html` (see below) and add a row to this table.
 
