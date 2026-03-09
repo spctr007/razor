@@ -92,7 +92,7 @@
   .workflow-step, .step-marker, .prompt-block, .comparison,
   .comp-header, .comp-row, .case-study, .quiz-card, .quiz-option,
   .quiz-feedback, .cheatsheet, .cs-item, footer, .example-box,
-  .decomp-item, .example-box {
+  .decomp-item {
     transition: background 0.35s ease, color 0.35s ease,
                 border-color 0.35s ease, box-shadow 0.35s ease;
   }
@@ -1207,7 +1207,7 @@ This will live in our docs so future engineers don't re-add<br>what we deliberat
         <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Evaluate 5 database options first to make the right long-term choice</button>
       </div>
       <div class="quiz-feedback">
-        <strong>Correct.</strong> Database swaps are rare, and when they happen, the migration is never clean regardless of your abstraction layer. The simpler explanation: use your ORM directly, solve the problem you have, and revisit if the hypothetical ever materializes. YAGNI and Occam's Razor agree.
+        <strong class="feedback-label"></strong> Database swaps are rare, and when they happen, the migration is never clean regardless of your abstraction layer. The simpler explanation: use your ORM directly, solve the problem you have, and revisit if the hypothetical ever materializes. YAGNI and Occam's Razor agree.
       </div>
     </div>
 
@@ -1220,7 +1220,7 @@ This will live in our docs so future engineers don't re-add<br>what we deliberat
         <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Using a flat file for config instead of a database when the config rarely changes</button>
       </div>
       <div class="quiz-feedback">
-        <strong>Correct.</strong> A plugin architecture multiplies entities (abstractions, interfaces, conventions) beyond necessity when there's only one use case and one team. Options A skips necessary complexity (error handling is required, not optional). Options B and D are good Razor applications — simpler solutions for simpler problems.
+        <strong class="feedback-label"></strong> A plugin architecture multiplies entities (abstractions, interfaces, conventions) beyond necessity when there's only one use case and one team. Options A skips necessary complexity (error handling is required, not optional). Options B and D are good Razor applications — simpler solutions for simpler problems.
       </div>
     </div>
 
@@ -1233,7 +1233,7 @@ This will live in our docs so future engineers don't re-add<br>what we deliberat
         <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Yes, as long as they document the missing features as future work</button>
       </div>
       <div class="quiz-feedback">
-        <strong>Correct.</strong> Occam's Razor eliminates unnecessary complexity, not necessary complexity. Input validation, rate limiting, and token expiry are requirements of a correct auth system — not optional extras. Removing them makes the solution incomplete, not simple. Simple ≠ simplistic.
+        <strong class="feedback-label"></strong> Occam's Razor eliminates unnecessary complexity, not necessary complexity. Input validation, rate limiting, and token expiry are requirements of a correct auth system — not optional extras. Removing them makes the solution incomplete, not simple. Simple ≠ simplistic.
       </div>
     </div>
 
@@ -1354,6 +1354,12 @@ This will live in our docs so future engineers don't re-add<br>what we deliberat
       b.style.pointerEvents = 'none';
     });
     btn.classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) {
+      card.querySelectorAll('.quiz-option').forEach(b => {
+        if (b.getAttribute('onclick').includes('true')) b.classList.add('correct');
+      });
+    }
+    feedback.querySelector('.feedback-label').textContent = correct ? 'Correct.' : 'The right answer:';
     feedback.classList.add('show', correct ? 'good' : 'bad');
   }
 
