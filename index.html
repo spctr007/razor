@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mental Models · Software Engineering with AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a25;
+    --border: #2a2a3a;
+    --accent: #e8c547;
+    --accent2: #7c6af0;
+    --accent3: #47c5e8;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --toggle-bg: #1a1a25;
+    --toggle-border: #2a2a3a;
+  }
+
+  [data-theme="light"] {
+    --bg: #f5f4ef;
+    --surface: #fffffe;
+    --surface2: #eeecea;
+    --border: #d8d5ce;
+    --accent: #c4961a;
+    --accent2: #5b4fd4;
+    --accent3: #1a9dbf;
+    --text: #1a1a28;
+    --muted: #7a7870;
+    --toggle-bg: #eeecea;
+    --toggle-border: #d8d5ce;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f5f4ef;
+      --surface: #fffffe;
+      --surface2: #eeecea;
+      --border: #d8d5ce;
+      --accent: #c4961a;
+      --accent2: #5b4fd4;
+      --accent3: #1a9dbf;
+      --text: #1a1a28;
+      --muted: #7a7870;
+      --toggle-bg: #eeecea;
+      --toggle-border: #d8d5ce;
+    }
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
+  }
+
+  /* ── THEME TOGGLE ── */
+  #theme-toggle {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--toggle-border);
+    background: var(--toggle-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background 0.3s, border-color 0.3s, transform 0.15s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  #theme-toggle:hover { border-color: var(--accent); transform: scale(1.08); }
+  #theme-toggle:active { transform: scale(0.95); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 55vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 4rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(124,106,240,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(232,197,71,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 900;
+    line-height: 0.95;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  .hero-title em { font-style: italic; color: var(--accent); }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    font-weight: 400;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  /* ── GRID ── */
+  .grid-section {
+    padding: 2rem 4rem 6rem;
+    max-width: 1200px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* ── TOPIC CARD ── */
+  .topic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .topic-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(124,106,240,0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .topic-card:hover {
+    border-color: var(--accent2);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+
+  .topic-card:hover::before { opacity: 1; }
+
+  .card-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .card-title em { font-style: italic; color: var(--accent); }
+
+  .card-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--accent2);
+    align-self: flex-start;
+    opacity: 0.7;
+  }
+
+  /* ── COMING SOON CARD ── */
+  .topic-card.coming-soon {
+    opacity: 0.45;
+    pointer-events: none;
+    border-style: dashed;
+  }
+
+  .topic-card.coming-soon .card-tag {
+    color: var(--muted);
+    border-color: var(--border);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 2rem 4rem;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .hero { padding: 5rem 1.5rem 3rem; }
+    .grid-section { padding: 1.5rem 1.5rem 4rem; }
+    footer { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" aria-label="Toggle theme" onclick="toggleTheme()">☀️</button>
+
+<!-- ── HERO ── -->
+<header class="hero">
+  <p class="hero-eyebrow">Software Engineering with AI</p>
+  <h1 class="hero-title">Mental<br><em>Models</em></h1>
+  <p class="hero-subtitle">A growing collection of timeless principles for engineers who build with AI. Each model is a lens — learn to see problems differently.</p>
+</header>
+
+<!-- ── TOPICS GRID ── -->
+<main class="grid-section">
+  <div class="section-label">
+    <span>01 / Topics</span>
+    <span id="topic-count"></span>
+  </div>
+
+  <div class="card-grid" id="card-grid">
+
+    <!-- ── PUBLISHED ── -->
+    <a class="topic-card fade-in" href="first-principles.html">
+      <span class="card-number">Model 01</span>
+      <h2 class="card-title">First<br><em>Principles</em></h2>
+      <p class="card-desc">Break every assumption. Decompose problems to their irreducible truths. Reconstruct solutions from the ground up — without borrowing from convention.</p>
+      <span class="card-tag">Reasoning</span>
+    </a>
+
+    <!-- ── COMING SOON ── -->
+    <div class="topic-card coming-soon fade-in">
+      <span class="card-number">Model 02</span>
+      <h2 class="card-title">Occam's<br><em>Razor</em></h2>
+      <p class="card-desc">Among competing solutions, prefer the simplest one that works. Complexity is a liability — every abstraction you add must earn its place.</p>
+      <span class="card-tag">Coming soon</span>
+    </div>
+
+    <div class="topic-card coming-soon fade-in">
+      <span class="card-number">Model 03</span>
+      <h2 class="card-title">Chesterton's<br><em>Fence</em></h2>
+      <p class="card-desc">Never remove something without understanding why it was put there. The code you don't understand is the code most likely to hurt you.</p>
+      <span class="card-tag">Coming soon</span>
+    </div>
+
+    <div class="topic-card coming-soon fade-in">
+      <span class="card-number">Model 04</span>
+      <h2 class="card-title">Conway's<br><em>Law</em></h2>
+      <p class="card-desc">Your system architecture will mirror your team structure whether you intend it or not. Design your org to design your system.</p>
+      <span class="card-tag">Coming soon</span>
+    </div>
+
+    <div class="topic-card coming-soon fade-in">
+      <span class="card-number">Model 05</span>
+      <h2 class="card-title">Separation<br><em>of Concerns</em></h2>
+      <p class="card-desc">Each part of your system should know as little as possible about the others. Coupling is the root cause of most software pain.</p>
+      <span class="card-tag">Coming soon</span>
+    </div>
+
+    <div class="topic-card coming-soon fade-in">
+      <span class="card-number">Model 06</span>
+      <h2 class="card-title">The Pit of<br><em>Success</em></h2>
+      <p class="card-desc">Design systems so that doing the right thing is the path of least resistance. The best API makes mistakes hard and correctness obvious.</p>
+      <span class="card-tag">Coming soon</span>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  Mental Models for Software Engineering &nbsp;·&nbsp; spctr007.github.io/razor
+</footer>
+
+<script>
+  // ── THEME ──
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    document.getElementById('theme-toggle').textContent = next === 'light' ? '🌙' : '☀️';
+    localStorage.setItem('theme', next);
+  }
+
+  (function initTheme() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('theme-toggle').textContent = theme === 'light' ? '🌙' : '☀️';
+  })();
+
+  // ── TOPIC COUNT ──
+  (function setCount() {
+    const published = document.querySelectorAll('.topic-card:not(.coming-soon)').length;
+    const total = document.querySelectorAll('.topic-card').length;
+    document.getElementById('topic-count').textContent = published + ' of ' + total + ' published';
+  })();
+
+  // ── SCROLL ANIMATIONS ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach((el, i) => {
+    el.style.transitionDelay = (i * 0.08) + 's';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
