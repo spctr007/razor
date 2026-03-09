@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Principles · Software Engineering with AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a25;
+    --border: #2a2a3a;
+    --accent: #e8c547;
+    --accent2: #7c6af0;
+    --accent3: #47c5e8;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #e84747;
+    --toggle-bg: #1a1a25;
+    --toggle-border: #2a2a3a;
+    --toggle-icon: '☀️';
+  }
+
+  /* ── LIGHT MODE ── */
+  [data-theme="light"] {
+    --bg: #f5f4ef;
+    --surface: #fffffe;
+    --surface2: #eeecea;
+    --border: #d8d5ce;
+    --accent: #c4961a;
+    --accent2: #5b4fd4;
+    --accent3: #1a9dbf;
+    --text: #1a1a28;
+    --muted: #7a7870;
+    --danger: #c43030;
+    --toggle-bg: #eeecea;
+    --toggle-border: #d8d5ce;
+    --toggle-icon: '🌙';
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f5f4ef;
+      --surface: #fffffe;
+      --surface2: #eeecea;
+      --border: #d8d5ce;
+      --accent: #c4961a;
+      --accent2: #5b4fd4;
+      --accent3: #1a9dbf;
+      --text: #1a1a28;
+      --muted: #7a7870;
+      --danger: #c43030;
+      --toggle-bg: #eeecea;
+      --toggle-border: #d8d5ce;
+    }
+  }
+
+  html { scroll-behavior: smooth; }
+
+  /* ── THEME TOGGLE ── */
+  #theme-toggle {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--toggle-border);
+    background: var(--toggle-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background 0.3s, border-color 0.3s, transform 0.15s;
+    border-radius: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+
+  #theme-toggle:hover {
+    border-color: var(--accent);
+    transform: scale(1.08);
+  }
+
+  #theme-toggle:active { transform: scale(0.95); }
+
+  /* Smooth theme transitions */
+  body, .hero, section, .principle-card, .definition-block,
+  .workflow-step, .step-marker, .prompt-block, .comparison,
+  .comp-header, .comp-row, .case-study, .quiz-card, .quiz-option,
+  .quiz-feedback, .cheatsheet, .cs-item, footer, .example-box,
+  .decomp-item, .example-box {
+    transition: background 0.35s ease, color 0.35s ease,
+                border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
+  }
+
+  [data-theme="light"] body::before,
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) body::before { opacity: 0.15; } }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 4rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(124,106,240,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(232,197,71,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 900;
+    line-height: 0.95;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.7;
+    font-weight: 400;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  .hero-nav {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+
+  .nav-pill {
+    padding: 0.5rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+
+  .nav-pill:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(232,197,71,0.05);
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    opacity: 0;
+    animation: fadeUp 0.8s 1.2s forwards;
+  }
+
+  .scroll-line {
+    width: 40px;
+    height: 1px;
+    background: var(--muted);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scroll-line::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: var(--accent);
+    animation: slide 2s 1.5s infinite;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 6rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-body {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.8;
+    max-width: 680px;
+    font-weight: 400;
+  }
+
+  /* ── DEFINITION BLOCK ── */
+  .definition-block {
+    margin-top: 4rem;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .definition-block::before {
+    content: '"';
+    position: absolute;
+    top: -0.5rem; right: 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem;
+    color: var(--accent);
+    opacity: 0.08;
+    line-height: 1;
+  }
+
+  .definition-block p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .definition-block cite {
+    display: block;
+    margin-top: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-style: normal;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── PRINCIPLES GRID ── */
+  .principles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5px;
+    margin-top: 3rem;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .principle-card {
+    background: var(--surface);
+    padding: 2.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .principle-card:hover { background: var(--surface2); }
+
+  .principle-card.active {
+    background: var(--surface2);
+  }
+
+  .principle-card.active::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: var(--accent);
+  }
+
+  .principle-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    margin-bottom: 1.2rem;
+  }
+
+  .principle-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .principle-tagline {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .principle-expand {
+    margin-top: 1.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+
+  .principle-card.active .principle-expand {
+    max-height: 1200px;
+  }
+
+  .principle-expand p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .principle-expand .example-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--accent2);
+    padding: 1rem 1.25rem;
+    margin-top: 0.5rem;
+  }
+
+  .example-box .ex-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .example-box p {
+    font-size: 0.85rem;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: var(--text);
+  }
+
+  /* ── AI WORKFLOW ── */
+  .workflow {
+    margin-top: 3rem;
+    position: relative;
+  }
+
+  .workflow-step {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 2rem;
+    margin-bottom: 0;
+    position: relative;
+  }
+
+  .workflow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 39px;
+    top: 80px;
+    bottom: -2rem;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--border), transparent);
+  }
+
+  .step-marker {
+    width: 80px;
+    height: 80px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .workflow-step:hover .step-marker {
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+
+  .step-marker .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .step-marker .step-icon {
+    font-size: 1.5rem;
+  }
+
+  .step-content {
+    padding: 1.75rem 0 3rem;
+  }
+
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .step-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .prompt-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--accent3);
+    position: relative;
+  }
+
+  .prompt-block::before {
+    content: 'PROMPT TEMPLATE';
+    position: absolute;
+    top: -0.5rem;
+    left: 1rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    background: var(--bg);
+    padding: 0 0.5rem;
+    color: var(--muted);
+  }
+
+  .prompt-block .var {
+    color: var(--accent);
+  }
+
+  /* ── COMPARISON TABLE ── */
+  .comparison {
+    margin-top: 3rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .comp-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    background: var(--surface2);
+  }
+
+  .comp-header div {
+    padding: 1rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-right: 1px solid var(--border);
+  }
+
+  .comp-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-top: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+
+  .comp-row:hover { background: var(--surface); }
+
+  .comp-row div {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.9rem;
+    border-right: 1px solid var(--border);
+    line-height: 1.5;
+  }
+
+  .comp-row div:first-child {
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .comp-row div:nth-child(2) { color: var(--danger); }
+  .comp-row div:nth-child(3) { color: var(--accent3); }
+
+  /* ── CASE STUDY ── */
+  .case-study {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 3rem;
+    margin-top: 3rem;
+    position: relative;
+  }
+
+  .case-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(232,197,71,0.1);
+    border: 1px solid rgba(232,197,71,0.3);
+    padding: 0.35rem 0.85rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+
+  .case-question {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+  }
+
+  .decomposition {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+  }
+
+  .decomp-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg);
+    border-left: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .decomp-item:hover { border-left-color: var(--accent); }
+
+  .decomp-arrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .decomp-text {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .decomp-text strong {
+    color: var(--accent3);
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    display: block;
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── QUIZ ── */
+  .quiz-container {
+    margin-top: 3rem;
+  }
+
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .quiz-q {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .quiz-option {
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .quiz-option::before {
+    content: attr(data-letter);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    flex-shrink: 0;
+    width: 1.5em;
+  }
+
+  .quiz-option:hover:not(.answered) {
+    border-color: var(--accent2);
+    background: rgba(124,106,240,0.05);
+  }
+
+  .quiz-option.correct {
+    border-color: #47e87a;
+    background: rgba(71,232,122,0.08);
+    color: #47e87a;
+  }
+
+  .quiz-option.wrong {
+    border-color: var(--danger);
+    background: rgba(232,71,71,0.08);
+    color: var(--danger);
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .quiz-feedback {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.good { background: rgba(71,232,122,0.08); border-left: 2px solid #47e87a; color: #47e87a; }
+  .quiz-feedback.bad { background: rgba(232,71,71,0.08); border-left: 2px solid var(--danger); color: #ff9999; }
+
+  /* ── CHEAT SHEET ── */
+  .cheatsheet {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .cs-item {
+    background: var(--surface);
+    padding: 2rem;
+  }
+
+  .cs-icon { font-size: 1.5rem; margin-bottom: 1rem; }
+
+  .cs-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .cs-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .cs-list li {
+    font-size: 0.85rem;
+    color: var(--muted);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .cs-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-size: 0.75rem;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slide {
+    to { left: 100%; }
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 4rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 3rem 4rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .hero { padding: 5rem 1.5rem 3rem; }
+    section { padding: 4rem 1.5rem; }
+    .divider { margin: 0 1.5rem; }
+    footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+    .scroll-hint { left: 1.5rem; }
+    .comp-header, .comp-row { grid-template-columns: 1fr; }
+    .comp-row div:nth-child(1) { background: var(--surface2); font-weight: 700; }
+    .workflow-step { grid-template-columns: 60px 1fr; gap: 1rem; }
+    .step-marker { width: 60px; height: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle theme">
+  <span id="theme-icon">☀️</span>
+</button>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">A mental model for the AI age</div>
+  <h1 class="hero-title">First<br><em>Principles</em><br>Engineering</h1>
+  <p class="hero-subtitle">Stop copying patterns you don't understand. Learn to reason from the ground up — and use AI as a thinking tool, not a shortcut that makes you dumber.</p>
+  <nav class="hero-nav">
+    <a class="nav-pill" href="#what">What it is</a>
+    <a class="nav-pill" href="#principles">The 5 principles</a>
+    <a class="nav-pill" href="#workflow">AI workflow</a>
+    <a class="nav-pill" href="#antipatterns">Anti-patterns</a>
+    <a class="nav-pill" href="#casestudy">Case study</a>
+    <a class="nav-pill" href="#quiz">Test yourself</a>
+  </nav>
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    SCROLL TO LEARN
+  </div>
+</div>
+
+<!-- WHAT IS IT -->
+<section id="what">
+  <div class="section-label">01 / Foundation</div>
+  <h2 class="section-title">What is First<br>Principles Thinking?</h2>
+  <p class="section-body">It's the practice of breaking a complex problem down to its most fundamental, irreducible truths — then building your solution back up from those truths, rather than from analogy, convention, or cargo-culting what everyone else does.</p>
+
+  <div class="definition-block">
+    <p>Reasoning by first principles is the practice of actively questioning every assumption you think you know about a given problem, and then creating new knowledge and solutions from scratch.</p>
+    <cite>— Inspired by Aristotle, popularized by Elon Musk and applied engineers everywhere</cite>
+  </div>
+
+  <br><br>
+  <p class="section-body">In software, this means asking: <em>why does this architecture exist? What problem does it fundamentally solve? If I had to build this from scratch knowing only the constraints, what would I build?</em></p>
+  <br>
+  <p class="section-body">With AI tools, this matters <strong style="color:var(--text)">more than ever</strong> — because AI can generate plausible-looking code that is completely wrong for your context if you don't understand the ground truth yourself.</p>
+</section>
+
+<hr class="divider">
+
+<!-- 5 PRINCIPLES -->
+<section id="principles">
+  <div class="section-label">02 / Core Framework</div>
+  <h2 class="section-title">The 5 Principles<br>Applied to Software</h2>
+  <p class="section-body">Click each principle to expand it with software engineering examples and how AI fits in.</p>
+
+  <div class="principles-grid" id="principlesGrid">
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 01</div>
+      <div class="principle-name">Question Every Assumption</div>
+      <div class="principle-tagline">Don't accept "we've always done it this way" as a technical justification.</div>
+      <div class="principle-expand">
+        <p>Every architectural decision carries hidden assumptions. REST APIs, SQL databases, microservices — these are solutions to specific historical problems. Before adopting them, ask: what problem am I actually solving? Are these constraints still true for me?</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>Assumption: "We need a microservices architecture." Question: Do we actually have team scaling or deployment independence problems, or are we just following trends? For a 3-person team, a modular monolith might be fundamentally better.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>When AI suggests a pattern, prompt it: "What assumptions does this solution make about my scale, team, and constraints? What would you build differently if those assumptions were false?"</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 02</div>
+      <div class="principle-name">Decompose to Fundamentals</div>
+      <div class="principle-tagline">Break the problem until you hit atoms — things that are undeniably true.</div>
+      <div class="principle-expand">
+        <p>Keep asking "why?" and "what does this actually need to do?" until you reach irreducible requirements. These are your constraints. Everything else is a design choice — and design choices can be changed.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>"Build a user authentication system." Fundamentals: (1) Verify identity. (2) Persist session. (3) Protect resources. From these atoms, you decide: OAuth vs passwords, JWT vs sessions, etc. — based on YOUR context.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>Ask AI: "Help me decompose this feature into its fundamental requirements — what does it absolutely need to do, ignoring implementation?" This forces clarity before coding starts.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 03</div>
+      <div class="principle-name">Reconstruct from Truth</div>
+      <div class="principle-tagline">Build your solution up from fundamentals, not down from convention.</div>
+      <div class="principle-expand">
+        <p>Once you know your irreducible truths, design flows naturally and intentionally. You're not copying a pattern — you're choosing components that solve each fundamental requirement. This means you understand every piece of your system.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>Fundamental: "I need to process 10 events/sec with guaranteed delivery." From this, you reconstruct: do I need a queue? What durability guarantee? Now Redis streams, RabbitMQ, or even a DB-backed queue all become conscious choices, not cargo cult.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>After decomposing, use AI to explore reconstruction: "Given these 4 fundamental constraints, generate 3 different architectures and explain which assumptions each makes."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 04</div>
+      <div class="principle-name">Separate Problem from Solution</div>
+      <div class="principle-tagline">Most "technical problems" are actually solution-framing problems.</div>
+      <div class="principle-expand">
+        <p>When someone says "we need to optimize this SQL query," they've already anchored to a solution. The actual problem might be "users wait too long." That problem might be solved without touching SQL at all — caching, pagination, async loading.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>"Our deployment pipeline is too slow" → Is the problem build time? Feedback loop length? Fear of deploying? Each has a different first-principles solution. Don't optimize the wrong thing faster.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>Tell AI the problem, not the solution. "Users are complaining about slowness" vs "optimize my database query." The first framing lets AI think from first principles with you.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 05</div>
+      <div class="principle-name">Validate Against Reality</div>
+      <div class="principle-tagline">First principles reasoning must be tested, not just trusted.</div>
+      <div class="principle-expand">
+        <p>Even sound logic can miss real-world complexity. Build feedback loops: prototype early, measure actual performance, run load tests, shadow-deploy. Your first-principles model is a hypothesis — treat it like one.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>You reasoned that in-memory caching eliminates the DB bottleneck. Test it. Maybe the bottleneck was actually network latency, not DB throughput. Reality overrules elegant theory every time.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>Use AI to steelman your design: "Here's my proposed architecture. What are the 5 ways this could fail in production that I haven't considered?" Then validate those failure modes with real data.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- AI WORKFLOW -->
+<section id="workflow">
+  <div class="section-label">03 / Practical Method</div>
+  <h2 class="section-title">The First Principles<br>AI Workflow</h2>
+  <p class="section-body">A step-by-step process for using AI as a Socratic thinking partner — not a code vending machine.</p>
+
+  <div class="workflow">
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 01</span>
+        <span class="step-icon">🎯</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">State the Real Problem</div>
+        <p class="step-desc">Before touching AI, write one paragraph describing the problem in terms of human or business outcomes — not technical systems. No solutions allowed yet.</p>
+        <div class="prompt-block">
+"I have a problem where <span class="var">[describe user/business pain]</span>.<br>
+The current situation is <span class="var">[what's happening now]</span>.<br>
+The constraint I'm working within is <span class="var">[time/team/budget/tech]</span>.<br>
+Help me decompose this to its fundamental requirements<br>
+without suggesting any solutions yet."</div>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 02</span>
+        <span class="step-icon">⚗️</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Expose Hidden Assumptions</div>
+        <p class="step-desc">Ask AI to surface what you're taking for granted. This is the highest-leverage step and most developers skip it entirely.</p>
+        <div class="prompt-block">
+"Here are the requirements I've gathered:<br>
+<span class="var">[paste your requirements]</span><br><br>
+What assumptions am I making about:<br>
+- Scale and load<br>
+- Team capabilities<br>
+- Technology constraints<br>
+- User behavior<br>
+Which of these assumptions, if wrong, would most<br>
+change the right solution?"</div>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 03</span>
+        <span class="step-icon">🔭</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Generate Solution Space</div>
+        <p class="step-desc">Only now do you explore implementations — and you explore multiple paths, not the first plausible one.</p>
+        <div class="prompt-block">
+"Given these verified fundamentals:<br>
+<span class="var">[list your non-negotiable constraints]</span><br><br>
+Generate 3 different approaches to solving this.<br>
+For each approach, tell me:<br>
+- What assumptions it optimizes for<br>
+- Where it breaks down<br>
+- What I'd need to be true for it to be the right choice"</div>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 04</span>
+        <span class="step-icon">⚔️</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Steelman & Challenge</div>
+        <p class="step-desc">Once you've chosen an approach, make AI argue against it. Force it to find your blind spots before you build.</p>
+        <div class="prompt-block">
+"I've decided on <span class="var">[your chosen approach]</span>.<br>
+Act as a skeptical senior engineer.<br>
+Give me your strongest argument against this design.<br>
+What would break it in production?<br>
+What are the hidden costs I'm not seeing?"</div>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 05</span>
+        <span class="step-icon">🧪</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Build, Measure, Revise</div>
+        <p class="step-desc">Implement with explicit instrumentation planned from day one. Define what "working" means before you write a line of code.</p>
+        <div class="prompt-block">
+"Help me define success metrics for <span class="var">[feature]</span>.<br>
+What should I measure to know if my first-principles<br>
+reasoning was correct?<br>
+What leading indicators would tell me early<br>
+if I need to revise my approach?"</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ANTI-PATTERNS -->
+<section id="antipatterns">
+  <div class="section-label">04 / What to Avoid</div>
+  <h2 class="section-title">Anti-Patterns:<br>AI Without First Principles</h2>
+  <p class="section-body">These are the failure modes that happen when engineers use AI as a vending machine rather than a thinking partner.</p>
+
+  <div class="comparison">
+    <div class="comp-header">
+      <div>Scenario</div>
+      <div>❌ Analogy Thinking</div>
+      <div>✅ First Principles</div>
+    </div>
+    <div class="comp-row">
+      <div>Choosing a database</div>
+      <div>"Everyone uses Postgres, so we use Postgres"</div>
+      <div>Define read/write ratio, query patterns, scale needs — then choose</div>
+    </div>
+    <div class="comp-row">
+      <div>Using AI for code</div>
+      <div>Copy-paste AI output without understanding it</div>
+      <div>Ask AI to explain trade-offs; verify against your actual constraints</div>
+    </div>
+    <div class="comp-row">
+      <div>Architecture</div>
+      <div>"Netflix uses microservices, so should we"</div>
+      <div>What are MY deployment, team, and scale constraints today?</div>
+    </div>
+    <div class="comp-row">
+      <div>Performance issues</div>
+      <div>Add caching everywhere as the default fix</div>
+      <div>Profile first. Identify the actual bottleneck. Solve that.</div>
+    </div>
+    <div class="comp-row">
+      <div>Tech stack choice</div>
+      <div>"React is popular, Kubernetes is mature"</div>
+      <div>What problems am I solving? What's the team's learning curve cost?</div>
+    </div>
+    <div class="comp-row">
+      <div>AI prompting</div>
+      <div>"Write me a user auth system"</div>
+      <div>"My constraints are X. What are the fundamental requirements of auth for my use case, and what options exist?"</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CASE STUDY -->
+<section id="casestudy">
+  <div class="section-label">05 / Worked Example</div>
+  <h2 class="section-title">Case Study:<br>Designing a Notification System</h2>
+  <p class="section-body">Watch first principles thinking applied to a real engineering problem — with AI as a reasoning partner at each step.</p>
+
+  <div class="case-study">
+    <div class="case-tag">📋 PROBLEM STATEMENT</div>
+    <div class="case-question">"We need to build a notification system for our app."</div>
+    <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1.5rem;">Most engineers jump straight to: "Let's use Firebase push notifications" or "Set up a message queue with worker processes." First principles says: stop. Decompose first.</p>
+
+    <div style="font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 1rem; text-transform: uppercase;">Step 1 → Decompose to fundamentals</div>
+
+    <div class="decomposition">
+      <div class="decomp-item">
+        <div class="decomp-arrow">→</div>
+        <div class="decomp-text">
+          <strong>FUNDAMENTAL TRUTH 1</strong>
+          A notification is: information delivered to a user at a time when they can act on it.
+        </div>
+      </div>
+      <div class="decomp-item">
+        <div class="decomp-arrow">→</div>
+        <div class="decomp-text">
+          <strong>FUNDAMENTAL TRUTH 2</strong>
+          Delivery has two axes: channel (email, push, SMS, in-app) and timing (real-time, batched, scheduled).
+        </div>
+      </div>
+      <div class="decomp-item">
+        <div class="decomp-arrow">→</div>
+        <div class="decomp-text">
+          <strong>FUNDAMENTAL TRUTH 3</strong>
+          Reliability requirement varies by notification type. "Your payment failed" ≠ "Weekly digest."
+        </div>
+      </div>
+      <div class="decomp-item">
+        <div class="decomp-arrow">→</div>
+        <div class="decomp-text">
+          <strong>FUNDAMENTAL TRUTH 4</strong>
+          Users have preferences. Delivery that ignores preferences becomes spam.
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--accent); margin: 1.5rem 0 1rem; text-transform: uppercase;">Step 2 → Expose assumptions with AI</div>
+
+    <div class="prompt-block" style="margin-bottom: 1.5rem;">
+AI Question: "What scale of notifications? 100/day or 10M/day?<br>
+What's the latency requirement? What happens if delivery fails?<br>
+Do users configure channels? Are notifications transactional?"<br><br>
+<span class="var">← These questions reveal what you actually need to build.</span>
+    </div>
+
+    <div style="font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 1rem; text-transform: uppercase;">Step 3 → Reconstruct based on your truths</div>
+
+    <div class="decomposition">
+      <div class="decomp-item">
+        <div class="decomp-arrow">✓</div>
+        <div class="decomp-text">
+          <strong>IF: small scale, single channel, low latency tolerance</strong>
+          → Simple DB-polling worker. No queue needed. Dead simple to operate and debug.
+        </div>
+      </div>
+      <div class="decomp-item">
+        <div class="decomp-arrow">✓</div>
+        <div class="decomp-text">
+          <strong>IF: high reliability required, multi-channel</strong>
+          → Outbox pattern + dedicated delivery workers per channel. Retry logic built in from truth #3.
+        </div>
+      </div>
+      <div class="decomp-item">
+        <div class="decomp-arrow">✓</div>
+        <div class="decomp-text">
+          <strong>IF: millions of users, complex preferences</strong>
+          → Now the message queue, fan-out architecture, and preference service are justified — because you understand WHY they exist.
+        </div>
+      </div>
+    </div>
+
+    <p style="color: var(--muted); font-size: 0.85rem; line-height: 1.7; margin-top: 1rem; font-style: italic;">The "right" answer depends on your fundamentals. First principles thinking means you choose with full awareness — not by pattern matching to what Amazon or Uber built.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="section-label">06 / Test Yourself</div>
+  <h2 class="section-title">First Principles<br>Checkpoint</h2>
+  <p class="section-body">Test your understanding. These questions have no trick answers — they're about reasoning, not memorization.</p>
+
+  <div class="quiz-container">
+
+    <div class="quiz-card">
+      <div class="quiz-q">A developer asks AI: "Write me a caching layer for my app." What's the first principles problem with this prompt?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false, 'The prompt is perfectly fine — caching is a standard solution and AI can implement it well.')">The prompt is perfectly fine — caching is a standard solution and AI can implement it well.</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, true, 'Correct. The developer jumped to a solution (caching) before understanding the problem (what is slow, and why). The actual bottleneck might not be addressable by caching at all. First principles says: identify the fundamental problem first.')">It anchors to a solution before identifying the fundamental problem — maybe caching isn\'t the right fix at all.</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, false, 'The problem is that caching is too complex. The developer should build something simpler first.')">The problem is that caching is too complex — start simpler.</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false, 'The developer should specify Redis or Memcached so the AI gives a better implementation.')">The developer should specify a technology (Redis, Memcached) to get a better answer.</button>
+      </div>
+      <div class="quiz-feedback" id="fb0"></div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">Your team is debating between microservices and a monolith. The first principles question to ask is:</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false, 'Popularity isn\'t a first principles reason — that\'s analogy thinking.')">What do the most successful companies use?</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, false, 'Technology maturity is a constraint, not the fundamental question to start with.')">Which technology is more mature and well-supported?</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, true, 'Exactly. Microservices solve specific problems: independent deployment, team autonomy, isolated scaling. If those problems aren\'t your fundamental constraints, microservices add complexity without benefit.')">What problems are we fundamentally trying to solve — deployment independence, team scaling, or service isolation?</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false, 'Performance benchmarks are useful but secondary — the architecture should solve team and organizational constraints first.')">Which architecture has better performance benchmarks?</button>
+      </div>
+      <div class="quiz-feedback" id="fb1"></div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">You've applied first principles and designed a novel caching architecture. The right next step is:</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false, 'Even sound first-principles reasoning is a hypothesis — it needs real-world validation.')">Ship it — your reasoning was sound, so the design is correct.</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, false, 'The opposite — validate your own work rigorously before evangelizing it.')">Present it to leadership as the definitive architecture.</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, true, 'Right. First principles reasoning produces a well-reasoned hypothesis. Principle 5 says validate it against reality — measure, test failure modes, and be willing to revise.')">Define what success looks like, build a prototype, measure against real load, and revise based on data.</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false, 'Consensus-seeking doesn\'t validate technical assumptions — measurement does.')">Get the whole team to agree on the design before building.</button>
+      </div>
+      <div class="quiz-feedback" id="fb2"></div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CHEAT SHEET -->
+<section id="cheatsheet">
+  <div class="section-label">07 / Quick Reference</div>
+  <h2 class="section-title">First Principles<br>Cheat Sheet</h2>
+
+  <div class="cheatsheet">
+    <div class="cs-item">
+      <div class="cs-icon">🔍</div>
+      <div class="cs-title">Questions to Ask First</div>
+      <ul class="cs-list">
+        <li>What is the user actually trying to accomplish?</li>
+        <li>What assumptions am I making about scale?</li>
+        <li>Why does the current solution exist?</li>
+        <li>What would I build if I started fresh today?</li>
+        <li>What's the simplest thing that could work?</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🤖</div>
+      <div class="cs-title">AI Prompt Patterns</div>
+      <ul class="cs-list">
+        <li>"What assumptions does this solution make?"</li>
+        <li>"Help me decompose this to fundamentals"</li>
+        <li>"Give me 3 approaches with trade-offs"</li>
+        <li>"Steelman the argument against my design"</li>
+        <li>"What would break this in production?"</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🚩</div>
+      <div class="cs-title">Red Flags (Stop Here)</div>
+      <ul class="cs-list">
+        <li>"Everyone uses X, so we should too"</li>
+        <li>Copying architecture from a different scale</li>
+        <li>Using AI output without understanding it</li>
+        <li>Optimizing before profiling</li>
+        <li>Solving a solution instead of a problem</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">✅</div>
+      <div class="cs-title">The 5-Step Process</div>
+      <ul class="cs-list">
+        <li>State the real problem (no solutions)</li>
+        <li>Expose hidden assumptions</li>
+        <li>Generate solution space (3 options)</li>
+        <li>Steelman & challenge your choice</li>
+        <li>Build with measurement from day one</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>FIRST PRINCIPLES · SOFTWARE ENGINEERING WITH AI</span>
+  <span style="color: var(--accent);">Reason from the ground up.</span>
+</footer>
+
+<script>
+  let quizIndex = 0;
+
+  function togglePrinciple(card) {
+    const wasActive = card.classList.contains('active');
+    document.querySelectorAll('.principle-card').forEach(c => c.classList.remove('active'));
+    if (!wasActive) card.classList.add('active');
+  }
+
+  function answer(btn, isCorrect, explanation) {
+    const card = btn.closest('.quiz-card');
+    if (card.querySelector('.answered')) return;
+    
+    const options = card.querySelectorAll('.quiz-option');
+    options.forEach(o => {
+      o.classList.add('answered');
+      o.style.pointerEvents = 'none';
+    });
+
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    if (!isCorrect) {
+      options.forEach(o => {
+        if (o.getAttribute('onclick').includes('true')) {
+          o.classList.add('correct');
+        }
+      });
+    }
+
+    const cards = document.querySelectorAll('.quiz-card');
+    const idx = Array.from(cards).indexOf(card);
+    const fb = document.getElementById('fb' + idx);
+    fb.textContent = explanation;
+    fb.className = 'quiz-feedback show ' + (isCorrect ? 'good' : 'bad');
+  }
+
+  // ── THEME TOGGLE ──
+  const root = document.documentElement;
+  const toggleBtn = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
+
+  // Detect system preference
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function getSystemTheme() {
+    return prefersDark.matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    localStorage.setItem('fp-theme', theme);
+  }
+
+  // Init: use saved preference or fall back to OS
+  const saved = localStorage.getItem('fp-theme');
+  applyTheme(saved || getSystemTheme());
+
+  // Toggle on click
+  toggleBtn.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  });
+
+  // Respond to OS theme changes (if no manual override saved)
+  prefersDark.addEventListener('change', (e) => {
+    if (!localStorage.getItem('fp-theme')) {
+      applyTheme(e.matches ? 'dark' : 'light');
+    }
+  });
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.principle-card, .workflow-step, .comp-row, .cs-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
