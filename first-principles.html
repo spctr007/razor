@@ -60,6 +60,68 @@
 
   html { scroll-behavior: smooth; }
 
+  /* ── HOME BUTTON ── */
+  #home-btn {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 9999;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--toggle-border);
+    background: var(--toggle-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: background 0.3s, border-color 0.3s, transform 0.15s;
+    border-radius: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+
+  #home-btn:hover {
+    border-color: var(--accent);
+    transform: scale(1.08);
+  }
+
+  #home-btn:active { transform: scale(0.95); }
+
+  /* ── BACK TO TOP ── */
+  #back-to-top {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--toggle-border);
+    background: var(--toggle-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background 0.3s, border-color 0.3s, transform 0.15s, opacity 0.3s;
+    border-radius: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #back-to-top.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  #back-to-top:hover {
+    border-color: var(--accent);
+    transform: scale(1.08);
+  }
+
+  #back-to-top:active { transform: scale(0.95); }
+
   /* ── THEME TOGGLE ── */
   #theme-toggle {
     position: fixed;
@@ -812,6 +874,12 @@
 </head>
 <body>
 
+<!-- HOME BUTTON -->
+<a id="home-btn" href="index.html" aria-label="Back to home" title="Back to home">🏠</a>
+
+<!-- BACK TO TOP -->
+<button id="back-to-top" aria-label="Back to top" title="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
 <!-- THEME TOGGLE -->
 <button id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle theme">
   <span id="theme-icon">☀️</span>
@@ -1328,6 +1396,12 @@ Do users configure channels? Are notifications transactional?"<br><br>
     fb.textContent = explanation;
     fb.className = 'quiz-feedback show ' + (isCorrect ? 'good' : 'bad');
   }
+
+  // ── BACK TO TOP ──
+  const backToTop = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    backToTop.classList.toggle('visible', window.scrollY > 300);
+  }, { passive: true });
 
   // ── THEME TOGGLE ──
   const root = document.documentElement;
