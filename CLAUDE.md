@@ -26,6 +26,7 @@ No build, lint, or test commands exist.
 |------|-------|
 | `first-principles.html` | First Principles thinking applied to software engineering with AI |
 | `occams-razor.html` | Occam's Razor applied to software design |
+| `chesterton-fence.html` | Chesterton's Fence applied to code archaeology and safe deletion |
 
 When adding a new page, follow the conventions established in `first-principles.html` (see below) and add a row to this table.
 
