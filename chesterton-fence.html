@@ -641,6 +641,43 @@
   .comp-row div:nth-child(2) { color: var(--danger); }
   .comp-row div:nth-child(3) { color: var(--accent3); }
 
+  /* ── 2-COLUMN COMPARISON (anti-patterns section) ── */
+  #anti .comp-header {
+    grid-template-columns: 1fr 2fr;
+    display: grid;
+  }
+
+  #anti .comp-header span {
+    padding: 1rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-right: 1px solid var(--border);
+    display: block;
+  }
+
+  #anti .comp-header span:last-child { border-right: none; }
+
+  #anti .comp-header .comp-wrong { color: var(--danger); }
+  #anti .comp-header .comp-right { color: var(--accent3); }
+
+  #anti .comp-row {
+    grid-template-columns: 1fr 2fr;
+  }
+
+  #anti .comp-row .comp-wrong {
+    color: var(--danger);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  #anti .comp-row .comp-right {
+    color: var(--accent3);
+    border-right: none;
+  }
+
   /* ── CASE STUDY ── */
   .case-study {
     background: var(--surface);
@@ -1175,6 +1212,45 @@ If you cannot write this justification, keep the code."</div>
       </div>
     </div>
 
+  </div>
+</section>
+
+<hr class="divider">
+
+<section id="anti">
+  <div class="section-label">04 / What Not to Do</div>
+  <h2 class="section-title">How Engineers<br>Violate the Fence</h2>
+  <p class="section-body">These are the reasoning shortcuts that turn "cleanup" into outages.</p>
+
+  <div class="comparison">
+    <div class="comp-header">
+      <span class="comp-wrong">❌ The Violation</span>
+      <span class="comp-right">✓ The Protocol</span>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">"This looks unused"</div>
+      <div class="comp-right">Trace all call sites — including dynamic invocations, config-driven paths, and runtime-generated references — before concluding anything is dead.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">"AI said it's safe to remove"</div>
+      <div class="comp-right">AI doesn't know your incident history. That's your job to supply. AI's verdict without your context is a hypothesis, not a fact.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">"The code is old, therefore bad"</div>
+      <div class="comp-right">Age is not evidence of obsolescence. Old fences often guard old wounds. A three-year-old workaround might be protecting against a three-year-old vendor bug with no fix.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">"It has no tests, so it must be dead"</div>
+      <div class="comp-right">Critical defensive code is often untested precisely because the failure mode it prevents is hard to reproduce in a test environment. No test coverage ≠ not running.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">"I don't understand it, so I'll delete it"</div>
+      <div class="comp-right">Not understanding it is the reason to investigate, not the reason to remove. Ignorance is the starting point of the protocol, not the justification for skipping it.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">"It's a cleanup sprint — no risk"</div>
+      <div class="comp-right">Cleanup sprints are where Chesterton's Fence violations cluster. The intent is low risk; the execution is often the opposite. Apply the full protocol regardless of sprint framing.</div>
+    </div>
   </div>
 </section>
 
