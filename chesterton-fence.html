@@ -1256,6 +1256,68 @@ If you cannot write this justification, keep the code."</div>
 
 <hr class="divider">
 
+<section id="case">
+  <div class="section-label">05 / Worked Example</div>
+  <h2 class="section-title">The 500ms That<br>Brought Down Payments</h2>
+  <p class="section-body">A real class of failure. The names and numbers are illustrative.</p>
+
+  <div class="case-study">
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Scene</div>
+      <div class="decomp-content">A backend payments service has been stable for three years. A senior engineer kicks off a "tech debt cleanup" sprint. They use an AI coding assistant to scan the codebase for dead code, unnecessary delays, and unused variables.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Fence</div>
+      <div class="decomp-content">The AI flags this line in <code style="font-family:'DM Mono',monospace;color:var(--accent3)">payment/processor.js</code>:
+      <br><br>
+      <code style="font-family:'DM Mono',monospace;font-size:0.9em;color:var(--accent3);background:rgba(71,197,232,0.08);padding:0.4rem 0.75rem;display:inline-block;border-radius:4px;">await sleep(500); // ???</code>
+      <br><br>
+      No comment. No test. No obvious caller. The AI reports: <em>"This appears to be an unnecessary artificial delay. Safe to remove."</em> The engineer reviews the PR, agrees, and merges.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">What the History Said</div>
+      <div class="decomp-content">
+        Running the Archaeology Protocol would have taken 30 seconds:
+      </div>
+    </div>
+
+  </div>
+
+  <pre class="terminal"><span class="t-cmd">$ git log -p --follow -- payment/processor.js | grep -B2 -A8 "sleep"</span>
+
+<span class="t-sha">commit a3f9c2d</span>  <span class="t-date">(3 years, 4 months ago)</span>  <span class="t-auth">marcus.chen@company.com</span>
+<span class="t-msg">"fix: add delay before processor.init() call"</span>
+
+<span class="t-add">+  await sleep(500);</span>  <span class="t-cmt">// SDK fires PAYMENT_READY before internal</span>
+                      <span class="t-cmt">// state is actually ready. Race condition.</span>
+                      <span class="t-cmt">// Filed with vendor: GH-2847. No fix yet.</span>
+                      <span class="t-cmt">// Revisit when SDK >= 4.0 ships.</span></pre>
+
+  <div class="case-study">
+
+    <div class="decomp-item">
+      <div class="decomp-label">What Happened</div>
+      <div class="decomp-content">Without the delay, approximately 3% of payment transactions attempted to charge before the SDK's internal token cache finished warming. The SDK returned no error — it silently accepted the call and failed downstream. The failure only surfaced under load. Detection took six hours. Three days of transactions required manual reconciliation.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Resolution</div>
+      <div class="decomp-content">The sleep was restored. The comment was rewritten to include the vendor ticket number, the SDK version when the fix would land, and a note explaining the race condition in detail. A test was written that mocked the SDK's async initialization to detect the race. The archaeology was baked into the code so the next engineer would not need to excavate it.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Lesson</div>
+      <div class="decomp-content">The AI made a structurally correct observation — the sleep had no comment, no test, and looked like a debug artifact. It had no way to know it was a production-critical compensation for a vendor race condition. That context existed exclusively in git history. The 30-second archaeology would have found it. The cleanup sprint didn't run the protocol.</div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
 </main>
 
 </body>
