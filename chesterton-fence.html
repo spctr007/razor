@@ -978,6 +978,103 @@
 
 <hr class="divider">
 
+<section id="principles">
+  <div class="section-label">02 / Core Framework</div>
+  <h2 class="section-title">5 Principles<br>of the Fence</h2>
+  <p class="section-body">Click each principle to expand it with software engineering examples and how AI fits in.</p>
+
+  <div class="principles-grid" id="principlesGrid">
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 01</div>
+      <div class="principle-name">Never Remove What You Can't Explain</div>
+      <div class="principle-tagline">If you can't state why it's safe to delete, you're not done investigating.</div>
+      <div class="principle-expand">
+        <p>The inability to explain a piece of code is not evidence that it's useless — it's evidence that your investigation is incomplete. Before removing anything, you need a complete answer to: what does this do, when does it run, and what would break without it? "It looks unused" is not an explanation. "It only runs on the error path that our happy-path tests never exercise" is.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>A <code style="font-family:'DM Mono',monospace">finally</code> block that releases a database connection looks redundant when the <code style="font-family:'DM Mono',monospace">try</code> block already has cleanup logic. Remove it, and you've created a connection leak that only surfaces under load — exactly when you can least afford it.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>Before asking AI to clean up code: "Before proposing any removals, explain what each piece you want to remove does, when it executes, and what you believe happens if it's absent. I will verify your explanation against the codebase history before approving any deletion."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 02</div>
+      <div class="principle-name">"Weird" Code Is Usually Defensive Code</div>
+      <div class="principle-tagline">Counterintuitive guards are the ones most likely to be load-bearing.</div>
+      <div class="principle-expand">
+        <p>Code that looks wrong is rarely the result of incompetence. Experienced engineers write "weird" code when the straightforward approach has already failed in production. The magic number, the unexpected type coercion, the seemingly redundant null check — these are scars. They encode the memory of failures that the codebase has survived so that you don't have to survive them again.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>An API handler that checks <code style="font-family:'DM Mono',monospace">if (userId !== undefined && userId !== null && userId !== '')</code> instead of just <code style="font-family:'DM Mono',monospace">if (userId)</code> is defensive — likely because some client was sending empty string userIds and causing downstream corruption. The verbose check is the fence.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>When AI calls something "redundant" or "overly verbose": "This pattern may be intentionally defensive. Before simplifying it, check git history for commits touching this line. Is there an incident or bug report that explains why the naive version was rejected?"</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 03</div>
+      <div class="principle-name">The History Is Part of the Code</div>
+      <div class="principle-tagline">git blame, commit messages, and PR descriptions are primary sources — not optional reading.</div>
+      <div class="principle-expand">
+        <p>Source control is not just version storage — it is the institutional memory of every decision the codebase has ever made. A file without its history is a fence without its sign. Reading code in isolation, without reading why it was written, is archaeological fieldwork without stratigraphy. You're picking up artifacts with no idea which layer they came from or what they were doing there.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p><code style="font-family:'DM Mono',monospace">git log -p -- src/payments/processor.js</code> takes 30 seconds. The commit three years ago that added the <code style="font-family:'DM Mono',monospace">sleep(500)</code> call says: "fix: compensate for SDK race condition — JIRA-4821." That's your answer. The code's history is the documentation you needed.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>Paste relevant git history into your prompt: "Here is the commit history for this file: [paste]. Given this history, what is the purpose of [specific code]? What risk does removing it introduce?" AI reasons much better when you provide the institutional memory it can't access.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 04</div>
+      <div class="principle-name">AI Sees the Fence, Not the Cattle</div>
+      <div class="principle-tagline">AI has no institutional memory — it cannot know what the code was defending against.</div>
+      <div class="principle-expand">
+        <p>Large language models are trained on syntax, not history. They see the current state of your code — not the three production incidents that shaped it. When AI confidently labels something "dead code" or "unnecessary complexity," it is making a structural observation without context. This is not a flaw; it is a fundamental limitation. AI is an extraordinarily capable reader of what the fence looks like. It cannot know why the fence was built.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>A feature flag that appears never set to <code style="font-family:'DM Mono',monospace">true</code> in the codebase might be a killswitch that ops toggles at the infrastructure level during incidents. AI sees dead code. Ops sees a circuit breaker. Removing it silently eliminates an incident response tool nobody wrote down.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>Treat AI's "safe to remove" conclusions as hypotheses, not verdicts. AI is identifying candidates for investigation — not authorizing deletion. Your job is to provide the context AI can't see, then ask again: "Given this incident history and these operational constraints, is it still safe to remove?"</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 05</div>
+      <div class="principle-name">The Burden of Proof Is on Removal</div>
+      <div class="principle-tagline">Keeping costs nothing. Removing requires a complete explanation.</div>
+      <div class="principle-expand">
+        <p>In most contexts, we assume that doing something requires justification and doing nothing does not. For code removal, invert this. Keeping code that might be needed costs almost nothing — a few lines in a file, no runtime overhead if it's on a dead path. Removing code that was needed costs an outage, a debugging session, and a post-mortem. Given asymmetric costs, the burden of proof belongs on the side of removal. "I think it's probably fine" is not sufficient justification.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>A data migration script from 2019 has run once and will never run again. It's safe to remove — you can answer exactly why: it ran on this date, the migration is complete, and re-running it would be a no-op due to the idempotency check on line 12. That's the standard. That's what "safe to remove" looks like.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>Before accepting any AI-proposed deletion: "Write a one-paragraph removal justification for each thing you want to delete. It must include: what the code did, when it ran, why it was originally added, and why it is now verifiably safe to remove. If you can't write this paragraph, we keep it."</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
 </main>
 
 </body>
