@@ -958,5 +958,27 @@
   </div>
 </header>
 
+<main>
+
+<section id="what">
+  <div class="section-label">01 / Foundation</div>
+  <h2 class="section-title">What is<br>Chesterton's Fence?</h2>
+  <p class="section-body">G.K. Chesterton's principle is simple: do not remove a fence until you understand why it was put up. In software, every constraint, guard, workaround, and "unnecessary" check is a fence. Some are genuinely obsolete. Most are not.</p>
+
+  <div class="definition-block">
+    <p>If you don't see the use of it, I certainly won't let you clear it away. Go away and think. Then, when you can come back and tell me that you do see the use of it, I may allow you to destroy it.</p>
+    <cite>— G.K. Chesterton, <em>The Thing</em>, 1929</cite>
+  </div>
+
+  <br><br>
+  <p class="section-body">The fence exists because something happened. A bug, an outage, a security incident, a race condition in a third-party SDK. You weren't there. The code was. Every <code style="font-family:'DM Mono',monospace;color:var(--accent3);font-size:0.9em">sleep(500)</code>, every <code style="font-family:'DM Mono',monospace;color:var(--accent3);font-size:0.9em">|| []</code>, every <code style="font-family:'DM Mono',monospace;color:var(--accent3);font-size:0.9em">try/catch</code> that "never fires" was written by someone who had a reason.</p>
+  <br>
+  <p class="section-body">With AI tools, this matters <strong style="color:var(--text)">more than ever</strong> — because AI sees code, not history. It has no access to the incident postmortem, the Slack thread, the three-year-old PR that explains the guard nobody questions anymore. When AI refactors confidently, it is working from syntax alone. The fence looks like clutter. The cattle are invisible.</p>
+</section>
+
+<hr class="divider">
+
+</main>
+
 </body>
 </html>
