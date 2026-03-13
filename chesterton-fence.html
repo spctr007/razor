@@ -56,6 +56,12 @@
       --toggle-bg: #eeecea;
       --toggle-border: #d8d5ce;
     }
+    :root:not([data-theme="dark"]) .terminal {
+      background: #f0efe9;
+      border-color: #d8d5ce;
+      border-left-color: var(--accent3);
+      color: #2a2a38;
+    }
   }
 
   html { scroll-behavior: smooth; }
