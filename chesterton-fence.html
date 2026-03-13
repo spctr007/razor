@@ -1448,5 +1448,72 @@ If you cannot write this justification, keep the code."</div>
   <span>A mental model series</span>
 </footer>
 
+<script>
+  // ── BACK TO TOP ──
+  const backToTop = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    backToTop.classList.toggle('visible', window.scrollY > 300);
+  }, { passive: true });
+
+  // ── THEME ──
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const icon = document.getElementById('theme-icon');
+
+  const saved = localStorage.getItem('theme');
+  if (saved) {
+    root.setAttribute('data-theme', saved);
+    icon.textContent = saved === 'light' ? '🌙' : '☀️';
+  }
+
+  toggle.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    icon.textContent = next === 'light' ? '🌙' : '☀️';
+  });
+
+  // ── EXPANDABLE CARDS ──
+  function togglePrinciple(el) {
+    const isActive = el.classList.contains('active');
+    document.querySelectorAll('.principle-card').forEach(c => c.classList.remove('active'));
+    if (!isActive) el.classList.add('active');
+  }
+
+  // ── QUIZ ──
+  function answer(btn, correct) {
+    const card = btn.closest('.quiz-card');
+    if (card.querySelector('.answered')) return;
+    const feedback = card.querySelector('.quiz-feedback');
+    card.querySelectorAll('.quiz-option').forEach(b => {
+      b.classList.add('answered');
+      b.style.pointerEvents = 'none';
+    });
+    btn.classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) {
+      card.querySelectorAll('.quiz-option').forEach(b => {
+        if (b.getAttribute('onclick').includes('true')) b.classList.add('correct');
+      });
+    }
+    feedback.querySelector('.feedback-label').textContent = correct ? 'Correct.' : 'The right answer:';
+    feedback.classList.add('show', correct ? 'good' : 'bad');
+  }
+
+  // ── SCROLL ANIMATIONS ──
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('section, .principle-card, .workflow-step, .comp-row, .cs-item, .quiz-card').forEach(el => {
+    el.classList.add('observe');
+    observer.observe(el);
+  });
+</script>
 </body>
 </html>
