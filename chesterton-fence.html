@@ -1075,6 +1075,111 @@
 
 <hr class="divider">
 
+<section id="archaeology">
+  <div class="section-label">03 / Practical Method</div>
+  <h2 class="section-title">The Archaeology<br>Protocol</h2>
+  <p class="section-body">A two-phase method: investigate before you touch, then prompt with the context AI can't see. Never skip Phase 1.</p>
+
+  <div style="font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;">Phase 1 — Investigate</div>
+
+  <div class="workflow">
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 01</span>
+        <span class="step-icon">🪨</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Read the Stratigraphy</div>
+        <p class="step-desc">Run <code style="font-family:'DM Mono',monospace;color:var(--accent3)">git log -p -- &lt;file&gt;</code> and read every commit that has ever touched this code. Pay attention to commit messages, dates, and author names. A three-year-old commit with a message like "fix: compensate for SDK bug" is the most important line in the file.</p>
+        <div class="prompt-block">
+git log -p --follow -- <span class="var">&lt;path/to/file&gt;</span>
+git blame <span class="var">&lt;path/to/file&gt;</span>
+git log --all --grep="<span class="var">&lt;function or variable name&gt;</span>"</div>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 02</span>
+        <span class="step-icon">🔍</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Find the Incident Layer</div>
+        <p class="step-desc">Search commit history, PR descriptions, and linked tickets for the code's fingerprint. Look for incident IDs, bug numbers, and phrases like "fix:", "hotfix:", "compensate for", "workaround". The PR that introduced the fence often explains exactly what it's protecting against.</p>
+        <div class="prompt-block">
+git log --all --grep="<span class="var">&lt;JIRA-ID or keyword&gt;</span>" --oneline
+git log --all -S "<span class="var">&lt;function name or string&gt;</span>" --oneline</div>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 03</span>
+        <span class="step-icon">🤖</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Ask AI to Explain, Not Change</div>
+        <p class="step-desc">Before proposing any edits, ask AI to describe what the code does and why it might exist — as a hypothesis. This forces a reasoning step before action, and often surfaces the explanation you were looking for.</p>
+        <div class="prompt-block">
+"Here is a piece of code I'm unfamiliar with:<br>
+<span class="var">[paste code]</span><br><br>
+Do not suggest changes yet.<br>
+First: explain what this code does, when it runs, and<br>
+what you hypothesize it was written to protect against.<br>
+List any patterns that suggest it is defensive code."</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent2);margin:2.5rem 0 1.5rem;">Phase 2 — Prompt with Context Loaded</div>
+
+  <div class="workflow">
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 04</span>
+        <span class="step-icon">📜</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Load the Archaeology</div>
+        <p class="step-desc">Share what you found: the commit message, the PR description, the linked incident. Give AI the institutional memory it can't access on its own. An AI with context is categorically different from an AI without it.</p>
+        <div class="prompt-block">
+"Here is the git history for this file:<br>
+<span class="var">[paste relevant commits and messages]</span><br><br>
+Here is the PR description that introduced this code:<br>
+<span class="var">[paste PR description]</span><br><br>
+Given this context, re-evaluate whether the code<br>
+I originally flagged is safe to remove."</div>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 05</span>
+        <span class="step-icon">⚖️</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Constrain the Removal</div>
+        <p class="step-desc">If removal is still warranted, require AI to produce a removal justification for every fence it wants to take down. The justification must state what the code did, why it's now safe to remove, and what would need to change to make removal dangerous again.</p>
+        <div class="prompt-block">
+"For each piece of code you propose removing,<br>
+write a removal justification that includes:<br>
+1. What this code does<br>
+2. When it runs<br>
+3. Why it was originally added<br>
+4. Why it is now verifiably safe to remove<br>
+5. What would need to change to make removal risky again<br><br>
+If you cannot write this justification, keep the code."</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
 </main>
 
 </body>
