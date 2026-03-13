@@ -1369,7 +1369,84 @@ If you cannot write this justification, keep the code."</div>
 
 <hr class="divider">
 
+<section id="cheatsheet">
+  <div class="section-label">07 / Quick Reference</div>
+  <h2 class="section-title">The Fence<br>Cheatsheet</h2>
+  <p class="section-body">Keep these close when reviewing, refactoring, or working with AI on unfamiliar code.</p>
+
+  <div class="cheatsheet">
+    <div class="cs-item">
+      <div class="cs-icon">🪨</div>
+      <div class="cs-title">The Rule</div>
+      <ul class="cs-list">
+        <li>Never remove what you can't explain</li>
+        <li>Keeping costs nothing; removing requires justification</li>
+        <li>"I don't understand it" means investigate, not delete</li>
+        <li>Weird code is usually defensive code</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🔎</div>
+      <div class="cs-title">Investigation Commands</div>
+      <ul class="cs-list">
+        <li><code style="font-family:'DM Mono',monospace;font-size:0.85em">git log -p -- &lt;file&gt;</code></li>
+        <li><code style="font-family:'DM Mono',monospace;font-size:0.85em">git blame &lt;file&gt;</code></li>
+        <li><code style="font-family:'DM Mono',monospace;font-size:0.85em">git log --all -S "&lt;term&gt;"</code></li>
+        <li><code style="font-family:'DM Mono',monospace;font-size:0.85em">git log --grep="&lt;keyword&gt;"</code></li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">✅</div>
+      <div class="cs-title">Pre-Removal Checklist</div>
+      <ul class="cs-list">
+        <li>Read the full git history for this file</li>
+        <li>Found the commit that introduced this code</li>
+        <li>Understand what condition it was written to handle</li>
+        <li>Confirmed that condition is no longer possible</li>
+        <li>Have a test that would catch a regression</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🚩</div>
+      <div class="cs-title">AI Danger Zones</div>
+      <ul class="cs-list">
+        <li>"This appears to be dead code"</li>
+        <li>"This delay seems unnecessary"</li>
+        <li>"This check is redundant"</li>
+        <li>"Safe to remove"</li>
+        <li>"This is legacy code with no purpose"</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">⚖️</div>
+      <div class="cs-title">The Removal Test</div>
+      <ul class="cs-list">
+        <li>What does this code defend against?</li>
+        <li>Is that condition still possible?</li>
+        <li>What breaks if I'm wrong?</li>
+        <li>How quickly would I detect the regression?</li>
+        <li>If I can't answer all four — keep it</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🤖</div>
+      <div class="cs-title">The Archaeology Prompt</div>
+      <ul class="cs-list">
+        <li>"Do not change anything yet"</li>
+        <li>"Explain what this code does and why it might exist"</li>
+        <li>"Here is the commit history: [paste]"</li>
+        <li>"Write a removal justification or conclude we keep it"</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 </main>
+
+<footer>
+  <span>Chesterton's Fence · Software Engineering with AI</span>
+  <span>A mental model series</span>
+</footer>
 
 </body>
 </html>
