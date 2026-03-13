@@ -1318,6 +1318,57 @@ If you cannot write this justification, keep the code."</div>
 
 <hr class="divider">
 
+<section id="quiz">
+  <div class="section-label">06 / Test Yourself</div>
+  <h2 class="section-title">Apply the<br>Fence</h2>
+  <p class="section-body">Three scenarios. Apply Chesterton's Fence and see if your instinct aligns with the principle.</p>
+
+  <div class="quiz-container">
+
+    <div class="quiz-card">
+      <div class="quiz-q">AI proposes removing a <code style="font-family:'DM Mono',monospace">try/catch</code> block that "never triggers in tests and appears to be boilerplate." What should you do first?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false)">Accept the change — if it never triggers, it's clearly unnecessary overhead</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, false)">Ask AI to rewrite it more cleanly before removing it</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, true)">Run git log on the file and find the commit that added this catch block — read why it was added before touching it</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Add a test that intentionally triggers it to verify it's reachable, then decide</button>
+      </div>
+      <div class="quiz-feedback">
+        <strong class="feedback-label"></strong> "Never triggers in tests" means nothing — your tests may not exercise the error path. The archaeological reflex is correct: read the history first. The commit that added the catch block will tell you what exception it was handling and whether that condition still exists. C is the protocol. D is reasonable but secondary.
+      </div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">A <code style="font-family:'DM Mono',monospace">|| []</code> default value appears in a four-year-old utility function with no comment. Your colleague says it's redundant because the function is always called with a valid array. Safe to remove?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false)">Yes — if all current callers pass valid arrays, the default is dead code</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, false)">Yes — the function should rely on its callers to pass valid input</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, true)">Not yet — find out what was returning null or undefined before the default was added, and confirm that condition is no longer possible</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Replace it with a runtime assertion that throws if the value is missing</button>
+      </div>
+      <div class="quiz-feedback">
+        <strong class="feedback-label"></strong> "All current callers pass valid arrays" is a claim about today. The <code style="font-family:'DM Mono',monospace">|| []</code> was added because something was passing a non-array value four years ago. Until you know what was causing that and can confirm it's gone, you don't know if you've closed the gap or just hidden it. C is the protocol.
+      </div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">Which of these is the strongest justification for removing an unfamiliar piece of code?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false)">AI confirmed it's unreachable based on static analysis</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, false)">The code has existed for 5 years with no associated tests</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, false)">No team member can remember why it was written</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, true)">You can explain exactly what it defends against, have confirmed that condition is no longer possible, and have a test that would catch a regression if you're wrong</button>
+      </div>
+      <div class="quiz-feedback">
+        <strong class="feedback-label"></strong> The other options are reasons to investigate more, not reasons to delete. A: static analysis misses dynamic call paths. B: age and test coverage are independent. C: nobody remembering is the reason to dig, not to remove. D is the complete justification: you understand the fence, you've verified the cattle are gone, and you've set a tripwire for if they come back.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+
 </main>
 
 </body>
