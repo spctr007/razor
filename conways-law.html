@@ -809,6 +809,104 @@
 </section>
 
 <hr class="divider">
+
+<section id="maneuver">
+  <div class="section-label">03 / Practical Method</div>
+  <h2 class="section-title">The Inverse<br>Conway <em>Protocol</em></h2>
+  <p class="section-body">A two-phase method: map your current mirror, then reshape deliberately. Never skip Phase 1.</p>
+
+  <div class="phase-label" style="color: var(--accent);">Phase 1 — Map the Mirror</div>
+
+  <div class="workflow">
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 01</span>
+        <span class="step-icon">🗣️</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Draw the Communication Structure</div>
+        <p class="step-desc">Before touching architecture, draw how your teams actually communicate — not the org chart, but the real flow. Who files tickets to whom? Which teams share on-call rotations? Where do deploys require coordination? This is your current architecture, expressed in human terms.</p>
+        <div class="prompt-block">
+Who does your team file tickets to?<br>
+Which teams file tickets to you?<br>
+Which deploys require you to notify another team?<br>
+Which teams share your on-call rotation?<br>
+Which services does your team call that another team owns?</div>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 02</span>
+        <span class="step-icon">🗺️</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Overlay the System Architecture</div>
+        <p class="step-desc">Place your actual service and module map next to the communication map. Find the matches: team boundaries that became service boundaries, coordination overhead that became synchronous API calls, ownership gaps that became shared databases. This is the mirror.</p>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 03</span>
+        <span class="step-icon">🔍</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Identify the Misalignments</div>
+        <p class="step-desc">The gaps between the architecture you want and the architecture you have are almost always org problems in disguise. A service owned by two teams will never have a clean interface. A domain that spans three teams will have three implementations. Name every misalignment before deciding how to fix it.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="phase-label" style="color: var(--accent2); margin-top: 3rem;">Phase 2 — Reshape Deliberately</div>
+
+  <div class="workflow">
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 04</span>
+        <span class="step-icon">✏️</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Design the Target Team Structure</div>
+        <p class="step-desc">Working backwards from the architecture you want: what team structure would naturally produce it? Map desired service boundaries to team ownership boundaries. Stream-aligned teams own a domain end-to-end. Platform teams provide capabilities as an internal product with an explicit API.</p>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 05</span>
+        <span class="step-icon">🚚</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Move Teams, Then Code</div>
+        <p class="step-desc">Restructure team ownership <em>before</em> restructuring the code. Once the team boundary matches the desired service boundary, the code will follow through natural feature work — not a big-bang refactor. Trying to restructure code before the org is like painting a house while the walls are still being moved.</p>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 06</span>
+        <span class="step-icon">🤖</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Apply the AI Maneuver</div>
+        <p class="step-desc">Once teams own clean domains, deploy AI coding assistants within those boundaries. The AI generates code in the context of one team's codebase, following one team's conventions, calling one team's APIs. Conway's Law amplified by AI now works <em>for</em> you.</p>
+        <div class="prompt-block">
+"You are working within the <span class="var">[team name]</span> domain.<br>
+The services you own are: <span class="var">[list]</span>.<br>
+The external services you are allowed to call are: <span class="var">[list]</span>.<br>
+Do not suggest calling any service not on this list.<br>
+Generate code that respects these ownership boundaries."</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
 </main>
 
 <script>
