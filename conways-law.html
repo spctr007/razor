@@ -1027,7 +1027,82 @@ Generate code that respects these ownership boundaries."</div>
 </section>
 
 <hr class="divider">
+
+<section id="cheatsheet">
+  <div class="section-label">07 / Quick Reference</div>
+  <h2 class="section-title">The Conway's Law<br><em>Cheatsheet</em></h2>
+  <p class="section-body">Keep these close when designing teams, reviewing architecture, or deploying AI tools.</p>
+
+  <div class="cheatsheet">
+    <div class="cs-item">
+      <div class="cs-icon">⚖️</div>
+      <div class="cs-title">The Law</div>
+      <ul class="cs-list">
+        <li>Systems mirror communication structures</li>
+        <li>Team boundaries become service boundaries</li>
+        <li>Coupling follows coordination overhead</li>
+        <li>You cannot architect your way out of an org problem</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🔄</div>
+      <div class="cs-title">The Maneuver</div>
+      <ul class="cs-list">
+        <li>Design team structure before system structure</li>
+        <li>One team owns one domain end-to-end</li>
+        <li>Move teams first, then let code follow</li>
+        <li>Target architecture → target team topology</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🗺️</div>
+      <div class="cs-title">Map the Mirror</div>
+      <ul class="cs-list">
+        <li>Draw real communication flows, not org charts</li>
+        <li>Overlay team map onto service map</li>
+        <li>Shared ownership = future coupling</li>
+        <li>Every coordination meeting is a tight coupling</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🚩</div>
+      <div class="cs-title">Warning Signs</div>
+      <ul class="cs-list">
+        <li>Two teams own the same service</li>
+        <li>Deploys require cross-team coordination</li>
+        <li>A platform team runs on tickets</li>
+        <li>AI tools deployed before restructuring</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🤖</div>
+      <div class="cs-title">AI Application</div>
+      <ul class="cs-list">
+        <li>Restructure teams before deploying AI</li>
+        <li>Scope AI context to team's owned domain</li>
+        <li>AI amplifies existing patterns — align them first</li>
+        <li>"You work within [team] domain. Owned services: [list]."</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">✅</div>
+      <div class="cs-title">The Standard</div>
+      <ul class="cs-list">
+        <li>Can this team deploy without coordination?</li>
+        <li>Does one team own this domain end-to-end?</li>
+        <li>Is the platform self-service with a stable API?</li>
+        <li>Would AI context naturally respect this boundary?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 </main>
+
+<footer>
+  <span>Conway's Law · Software Engineering with AI</span>
+  <span>A mental model series</span>
+</footer>
 
 <script>
   function togglePrinciple(el) {
