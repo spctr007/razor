@@ -1,0 +1,1528 @@
+# Conway's Law — Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Build `conways-law.html` — a self-contained educational HTML page on Conway's Law (Inverse Conway Maneuver angle) matching the style and conventions of the existing razor collection.
+
+**Architecture:** Single HTML file with embedded CSS and JS. No build step, no dependencies beyond Google Fonts. Follows `chesterton-fence.html` as the reference implementation — same structure, same JS patterns, same CSS variable system. Content sourced from the approved spec at `docs/superpowers/specs/2026-03-23-conways-law-design.md`.
+
+**Tech Stack:** HTML5, CSS3 (custom properties, Grid, Flexbox), vanilla JS (Intersection Observer, localStorage), Google Fonts (Playfair Display, DM Mono, Syne)
+
+---
+
+## Files
+
+- **Create:** `conways-law.html` — the full page
+- **Modify:** `index.html` — activate the Model 04 card (remove `coming-soon`, add `href`)
+
+---
+
+## Task 1: HTML scaffold, CSS, and fixed UI buttons
+
+Build the document shell: `<head>`, full `<style>` block, fixed buttons (home, theme toggle, back-to-top). This is the foundation everything else sits in. Model it on `chesterton-fence.html` lines 1–984.
+
+**Files:**
+- Create: `conways-law.html`
+
+- [ ] **Step 1: Create the file with doctype, head, and style block**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conway's Law · Software Engineering with AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a25;
+    --border: #2a2a3a;
+    --accent: #e8c547;
+    --accent2: #7c6af0;
+    --accent3: #47c5e8;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #e84747;
+    --toggle-bg: #1a1a25;
+    --toggle-border: #2a2a3a;
+    --toggle-icon: '☀️';
+  }
+
+  [data-theme="light"] {
+    --bg: #f5f4ef;
+    --surface: #fffffe;
+    --surface2: #eeecea;
+    --border: #d8d5ce;
+    --accent: #c4961a;
+    --accent2: #5b4fd4;
+    --accent3: #1a9dbf;
+    --text: #1a1a28;
+    --muted: #7a7870;
+    --danger: #c43030;
+    --toggle-bg: #eeecea;
+    --toggle-border: #d8d5ce;
+    --toggle-icon: '🌙';
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f5f4ef;
+      --surface: #fffffe;
+      --surface2: #eeecea;
+      --border: #d8d5ce;
+      --accent: #c4961a;
+      --accent2: #5b4fd4;
+      --accent3: #1a9dbf;
+      --text: #1a1a28;
+      --muted: #7a7870;
+      --danger: #c43030;
+      --toggle-bg: #eeecea;
+      --toggle-border: #d8d5ce;
+    }
+    :root:not([data-theme="dark"]) .terminal {
+      background: #f0efe9;
+      border-color: #d8d5ce;
+      border-left-color: var(--accent3);
+      color: #2a2a38;
+    }
+  }
+
+  html { scroll-behavior: smooth; }
+
+  /* ── SMOOTH THEME TRANSITIONS ── */
+  body, .hero, section, .principle-card, .definition-block,
+  .workflow-step, .step-marker, .prompt-block, .comparison,
+  .comp-header, .comp-row, .case-study, .quiz-card, .quiz-option,
+  .quiz-feedback, .cheatsheet, .cs-item, footer, .example-box,
+  .decomp-item {
+    transition: background 0.35s ease, color 0.35s ease,
+                border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
+  }
+
+  /* ── HOME BUTTON ── */
+  #home-btn {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 9999;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--toggle-border);
+    background: var(--toggle-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: background 0.3s, border-color 0.3s, transform 0.15s;
+    border-radius: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  #home-btn:hover { border-color: var(--accent); transform: scale(1.08); }
+  #home-btn:active { transform: scale(0.95); }
+
+  /* ── BACK TO TOP ── */
+  #back-to-top {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--toggle-border);
+    background: var(--toggle-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background 0.3s, border-color 0.3s, transform 0.15s, opacity 0.3s;
+    border-radius: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    opacity: 0;
+    pointer-events: none;
+  }
+  #back-to-top.visible { opacity: 1; pointer-events: auto; }
+  #back-to-top:hover { border-color: var(--accent); transform: scale(1.08); }
+  #back-to-top:active { transform: scale(0.95); }
+
+  /* ── THEME TOGGLE ── */
+  #theme-toggle {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--toggle-border);
+    background: var(--toggle-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background 0.3s, border-color 0.3s, transform 0.15s;
+    border-radius: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  #theme-toggle:hover { border-color: var(--accent); transform: scale(1.08); }
+  #theme-toggle:active { transform: scale(0.95); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 4rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(124,106,240,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(232,197,71,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 900;
+    line-height: 0.95;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+  .hero-title em { font-style: italic; color: var(--accent); }
+  .hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.7;
+    font-weight: 400;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-incident {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--danger);
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    padding: 1rem 1.25rem;
+    border-left: 2px solid var(--danger);
+    opacity: 0;
+    animation: fadeUp 0.8s 0.1s forwards;
+  }
+  .hero-nav {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+  .nav-pill {
+    padding: 0.5rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+  .nav-pill:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(232,197,71,0.05);
+  }
+  .scroll-hint {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+  }
+  .scroll-line {
+    width: 40px;
+    height: 1px;
+    background: var(--muted);
+    display: block;
+  }
+  .scroll-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 5rem 4rem;
+    max-width: 900px;
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 2rem;
+  }
+  .section-title em { font-style: italic; color: var(--accent); }
+  .section-body {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 680px;
+    margin-bottom: 1.5rem;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 4rem;
+  }
+
+  /* ── DEFINITION BLOCK ── */
+  .definition-block {
+    margin: 2.5rem 0;
+    padding: 2rem 2.5rem;
+    border-left: 3px solid var(--accent);
+    background: var(--surface);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .definition-block cite {
+    display: block;
+    margin-top: 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-style: normal;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  /* ── PRINCIPLE CARDS ── */
+  .principles-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 2.5rem;
+  }
+  .principle-card {
+    background: var(--surface);
+    padding: 2rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .principle-card:hover { background: var(--surface2); }
+  .principle-card.active { background: var(--surface2); }
+  .principle-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .principle-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+  .principle-tagline {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .principle-expand {
+    display: none;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .principle-card.active .principle-expand { display: block; }
+
+  .example-box {
+    margin-top: 1.25rem;
+    padding: 1.25rem;
+    background: var(--bg);
+    border-left: 2px solid var(--accent);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .ex-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+
+  /* ── WORKFLOW ── */
+  .workflow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 2rem;
+    position: relative;
+  }
+  .workflow-step {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 2rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .workflow-step:last-child { border-bottom: none; }
+  .step-marker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.25rem;
+  }
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .step-icon { font-size: 1.5rem; }
+  .step-content { padding-top: 0.25rem; }
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+  .step-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .prompt-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    padding: 1.25rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--text);
+    margin-top: 1rem;
+  }
+  .prompt-block .var { color: var(--accent3); font-style: italic; }
+
+  .phase-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 2.5rem 0 1.5rem;
+  }
+
+  /* ── COMPARISON TABLE ── */
+  .comparison {
+    margin-top: 2.5rem;
+    border: 1px solid var(--border);
+  }
+  .comp-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .comp-header span {
+    padding: 1rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .comp-header .comp-wrong { color: var(--danger); border-right: 1px solid var(--border); }
+  .comp-header .comp-right { color: #47e87a; }
+  .comp-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .comp-row:last-child { border-bottom: none; }
+  .comp-row .comp-wrong {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.9rem;
+    color: var(--danger);
+    border-right: 1px solid var(--border);
+    line-height: 1.5;
+  }
+  .comp-row .comp-right {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ── CASE STUDY ── */
+  .case-study {
+    margin-top: 2.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .decomp-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .decomp-item:last-child { border-bottom: none; }
+  .decomp-label {
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    min-width: 140px;
+    margin-top: 0.2rem;
+  }
+  .decomp-content {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  /* ── QUIZ ── */
+  .quiz-container { margin-top: 3rem; }
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .quiz-q {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.75rem; }
+  .quiz-option {
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .quiz-option::before {
+    content: attr(data-letter);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    flex-shrink: 0;
+    width: 1.5em;
+  }
+  .quiz-option:hover:not(.answered) {
+    border-color: var(--accent2);
+    background: rgba(124,106,240,0.05);
+  }
+  .quiz-option.correct { border-color: #47e87a; background: rgba(71,232,122,0.08); color: #47e87a; }
+  .quiz-option.wrong { border-color: var(--danger); background: rgba(232,71,71,0.08); color: var(--danger); text-decoration: line-through; opacity: 0.6; }
+  .quiz-feedback {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.good { background: rgba(71,232,122,0.08); border-left: 2px solid #47e87a; color: #47e87a; }
+  .quiz-feedback.bad { background: rgba(232,71,71,0.08); border-left: 2px solid var(--danger); color: #ff9999; }
+
+  /* ── CHEATSHEET ── */
+  .cheatsheet {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .cs-item { background: var(--surface); padding: 2rem; }
+  .cs-icon { font-size: 1.5rem; margin-bottom: 1rem; }
+  .cs-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .cs-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .cs-list li {
+    font-size: 0.85rem;
+    color: var(--muted);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.5;
+  }
+  .cs-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-size: 0.75rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 2rem 4rem;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .observe {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .observe.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    section { padding: 3rem 1.5rem; }
+    .hero { padding: 5rem 1.5rem 3rem; }
+    .divider { margin: 0 1.5rem; }
+    footer { padding: 1.5rem; }
+    .workflow-step { grid-template-columns: 1fr; gap: 0.75rem; }
+    .comp-header, .comp-row { grid-template-columns: 1fr; }
+    .comp-header .comp-wrong, .comp-row .comp-wrong { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<a id="home-btn" href="index.html" aria-label="Home">⌂</a>
+<button id="theme-toggle" aria-label="Toggle theme"><span id="theme-icon">☀️</span></button>
+<button id="back-to-top" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+```
+
+- [ ] **Step 2: Open in browser and verify the page loads (dark background, no errors)**
+
+```bash
+python -m http.server 8080
+# Open http://localhost:8080/conways-law.html
+```
+
+Expected: Dark page with no visible content yet (just the background + buttons). No console errors.
+
+- [ ] **Step 3: Commit the scaffold**
+
+```bash
+git add conways-law.html
+git commit -m "feat: scaffold Conway's Law page — CSS and fixed UI"
+```
+
+---
+
+## Task 2: Hero section
+
+Add the full hero with incident hook, title, subtitle, and nav pills.
+
+**Files:**
+- Modify: `conways-law.html` — add hero HTML after `<body>` fixed buttons
+
+- [ ] **Step 1: Add the hero HTML**
+
+Add after the three fixed buttons, before `</body>`:
+
+```html
+<header class="hero">
+  <div class="hero-incident">The microservices migration succeeded. 18 months later, they counted: 23 services, 23 teams. Every cross-team API call required a ticket. The architecture was technically correct. It just perfectly replicated every dysfunction in the org.</div>
+  <p class="hero-eyebrow">Mental Model 04 · Software Engineering with AI</p>
+  <h1 class="hero-title">Conway's<br><em>Law</em></h1>
+  <p class="hero-subtitle">Your system architecture will mirror your team structure whether you plan it or not. The Inverse Conway Maneuver turns that from a warning into a weapon.</p>
+  <nav class="hero-nav">
+    <a class="nav-pill" href="#what">What it is</a>
+    <a class="nav-pill" href="#principles">5 Principles</a>
+    <a class="nav-pill" href="#maneuver">The Maneuver</a>
+    <a class="nav-pill" href="#anti">Anti-Patterns</a>
+    <a class="nav-pill" href="#case">Case Study</a>
+    <a class="nav-pill" href="#quiz">Quiz</a>
+    <a class="nav-pill" href="#cheatsheet">Cheatsheet</a>
+  </nav>
+  <div class="scroll-hint">
+    <span class="scroll-line"></span>
+    <span class="scroll-text">scroll</span>
+  </div>
+</header>
+
+<main>
+</main>
+```
+
+- [ ] **Step 2: Verify hero in browser**
+
+Expected: Full-viewport hero with red incident text at top, eyebrow, large title, subtitle, and nav pills. Scroll hint at bottom-left. Animations fade in.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add conways-law.html
+git commit -m "feat: add Conway's Law hero section"
+```
+
+---
+
+## Task 3: Section 01 — Foundation (`#what`)
+
+Add the definition section explaining Conway's Law and the Inverse Conway Maneuver.
+
+**Files:**
+- Modify: `conways-law.html` — add section inside `<main>`
+
+- [ ] **Step 1: Add foundation section inside `<main>`**
+
+```html
+<section id="what">
+  <div class="section-label">01 / Foundation</div>
+  <h2 class="section-title">What is<br>Conway's <em>Law</em>?</h2>
+  <p class="section-body">Conway's Law is Melvin Conway's 1967 observation: organizations which design systems are constrained to produce designs which are copies of the communication structures of those organizations. In practice: your module boundaries follow your team boundaries. Your API contracts follow your reporting lines. Your monolith's internal coupling follows who sits next to whom.</p>
+
+  <div class="definition-block">
+    <p>Organizations which design systems are constrained to produce designs which are copies of the communication structures of those organizations.</p>
+    <cite>— Melvin Conway, 1967</cite>
+  </div>
+
+  <p class="section-body">The Inverse Conway Maneuver flips this from a liability into a strategy: <strong style="color:var(--text)">design your team structure first to produce the architecture you want</strong>, then let Conway's Law do its work.</p>
+  <p class="section-body">The law is not a metaphor — it's a force. You cannot fight it by drawing a better architecture diagram. You fight it by changing how people work together. And with AI coding assistants accelerating code generation, teams that ignore this law will find their existing communication patterns crystallized into architecture faster than ever before.</p>
+</section>
+
+<hr class="divider">
+```
+
+- [ ] **Step 2: Verify in browser**
+
+Expected: Section renders below hero with definition block (left gold border), quote, and body text. Divider line below.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add conways-law.html
+git commit -m "feat: add Conway's Law foundation section"
+```
+
+---
+
+## Task 4: Section 02 — Principles (`#principles`)
+
+Add 5 expandable principle cards. Each has a Software Example block and an AI Application block.
+
+**Files:**
+- Modify: `conways-law.html` — add section inside `<main>` after divider
+
+- [ ] **Step 1: Add the principles section**
+
+```html
+<section id="principles">
+  <div class="section-label">02 / Core Framework</div>
+  <h2 class="section-title">5 Principles<br>of the <em>Law</em></h2>
+  <p class="section-body">Click each principle to expand it with software engineering examples and how AI fits in.</p>
+
+  <div class="principles-grid" id="principlesGrid">
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 01</div>
+      <div class="principle-name">Your Architecture Is a Portrait of Your Org</div>
+      <div class="principle-tagline">The system you have is the system your communication structure produced.</div>
+      <div class="principle-expand">
+        <p>Conway's Law is not a metaphor — it's a force. Teams that communicate freely produce tightly coupled modules. Teams that communicate through tickets produce hard API boundaries. Teams that don't communicate produce parallel reimplementations. You cannot fight this by drawing a better architecture diagram. You fight it by changing how people work together.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>A checkout service with tangled payments and fulfillment logic — not because the domains are related, but because those two teams share a sprint. The coupling is organizational before it is architectural.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>Before assuming an AI-suggested architecture is correct, ask: does the proposed service boundary match who will own it? If not, the architecture won't survive contact with the org. Ownership follows communication, not diagrams.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 02</div>
+      <div class="principle-name">Seams Follow Ownership, Not Logic</div>
+      <div class="principle-tagline">Module boundaries emerge from who owns what, not from what makes logical sense.</div>
+      <div class="principle-expand">
+        <p>When a domain spans two teams, the split happens at the handoff — not at the cleanest abstraction. The result is interfaces that are wide, fragile, and over-specified because each side is defending its territory. Ownership ambiguity is the root cause of most architectural debt.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>A notifications service that half-lives in the payments team's repo and half in the platform team's repo — because it was built collaboratively and nobody claimed it. The interface is a mess of legacy fields because both teams are scared to break the other.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>"Before proposing a service split, identify which team will own each resulting service end-to-end. If ownership is ambiguous, flag that before proposing architecture. Shared ownership is a future coupling point, not a solution."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 03</div>
+      <div class="principle-name">The Inverse Conway Maneuver</div>
+      <div class="principle-tagline">Design your teams to produce the architecture you want.</div>
+      <div class="principle-expand">
+        <p>If you want a clean service boundary between payments and notifications, create a team that owns payments end-to-end and a team that owns notifications end-to-end — before writing the services. The architecture will follow. This is the premise behind Team Topologies, Amazon's two-pizza teams, and most successful platform splits.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>Spotify's squad model was not a cultural experiment — it was an architectural decision. The architecture they wanted (independent, deployable services per domain) required independent, autonomous teams per domain. Team structure first; architecture followed.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>"We are restructuring around these domain teams: [list]. For each proposed service or module, assign it to exactly one team. Flag anything that would require two teams to co-own."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 04</div>
+      <div class="principle-name">AI Accelerates the Existing Pattern</div>
+      <div class="principle-tagline">AI tools crystallize your current org structure into code faster than ever.</div>
+      <div class="principle-expand">
+        <p>When an engineer uses an AI coding assistant, the code it generates naturally follows the context it's given: the files the engineer owns, the APIs they call, the conventions their team uses. AI doesn't see org charts — but it amplifies whoever holds the keyboard. If your teams are siloed, AI-assisted development will build those silos into the architecture at 10x speed, before anyone notices.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>Three platform teams each adopt an AI assistant. Six months later, each team has built its own internal observability library — all slightly different, none compatible. The AI wasn't wrong; it was working from the context each team provided. The duplication was already there, latent in the org. AI made it structural.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>Before rolling out AI assistants org-wide, audit your team ownership model. Misaligned teams + AI acceleration = architectural debt at machine speed. Align the org first; then amplify.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card" onclick="togglePrinciple(this)">
+      <div class="principle-number">PRINCIPLE 05</div>
+      <div class="principle-name">Team Interfaces Are API Contracts</div>
+      <div class="principle-tagline">How your teams communicate IS your interface design.</div>
+      <div class="principle-expand">
+        <p>Every sync meeting that shouldn't exist is a tight coupling. Every Slack DM for a "quick question" is an undocumented API call. Every team that can deploy independently is a service with a clean interface. Designing your system architecture and designing your team interactions are the same problem — the Inverse Conway Maneuver is where they converge.</p>
+        <div class="example-box">
+          <div class="ex-label">Software Example</div>
+          <p>A team that can deploy on Friday afternoon without notifying anyone has a clean interface. A team that sends a "heads up" Slack message before every deploy is tightly coupled to whoever reads that message. The communication pattern is the coupling — not the code.</p>
+        </div>
+        <div class="example-box" style="border-left-color: var(--accent3); margin-top: 0.75rem;">
+          <div class="ex-label" style="color: var(--accent3);">AI Application</div>
+          <p>"List every external dependency this service has. For each dependency, identify the owning team. If the owning team is the same as this team, that's not an external dependency — it's internal complexity. Restructure accordingly."</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+```
+
+- [ ] **Step 2: Verify in browser**
+
+Expected: 5 stacked cards, each expandable on click. Only one expands at a time. Example boxes visible when expanded. Click one card, then another — first collapses.
+
+- [ ] **Step 3: Add JS for togglePrinciple early** (needed for verification — add inside `<script>` at bottom of file)
+
+```html
+<script>
+  function togglePrinciple(el) {
+    const isActive = el.classList.contains('active');
+    document.querySelectorAll('.principle-card').forEach(c => c.classList.remove('active'));
+    if (!isActive) el.classList.add('active');
+  }
+</script>
+```
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add conways-law.html
+git commit -m "feat: add Conway's Law principles section"
+```
+
+---
+
+## Task 5: Section 03 — The Maneuver (`#maneuver`)
+
+Add the Inverse Conway Protocol with 6 workflow steps across 2 phases.
+
+**Files:**
+- Modify: `conways-law.html` — add section inside `<main>`
+
+- [ ] **Step 1: Add the maneuver section**
+
+```html
+<section id="maneuver">
+  <div class="section-label">03 / Practical Method</div>
+  <h2 class="section-title">The Inverse<br>Conway <em>Protocol</em></h2>
+  <p class="section-body">A two-phase method: map your current mirror, then reshape deliberately. Never skip Phase 1.</p>
+
+  <div class="phase-label" style="color: var(--accent);">Phase 1 — Map the Mirror</div>
+
+  <div class="workflow">
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 01</span>
+        <span class="step-icon">🗣️</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Draw the Communication Structure</div>
+        <p class="step-desc">Before touching architecture, draw how your teams actually communicate — not the org chart, but the real flow. Who files tickets to whom? Which teams share on-call rotations? Where do deploys require coordination? This is your current architecture, expressed in human terms.</p>
+        <div class="prompt-block">
+Who does your team file tickets to?<br>
+Which teams file tickets to you?<br>
+Which deploys require you to notify another team?<br>
+Which teams share your on-call rotation?<br>
+Which services does your team call that another team owns?</div>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 02</span>
+        <span class="step-icon">🗺️</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Overlay the System Architecture</div>
+        <p class="step-desc">Place your actual service and module map next to the communication map. Find the matches: team boundaries that became service boundaries, coordination overhead that became synchronous API calls, ownership gaps that became shared databases. This is the mirror.</p>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 03</span>
+        <span class="step-icon">🔍</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Identify the Misalignments</div>
+        <p class="step-desc">The gaps between the architecture you want and the architecture you have are almost always org problems in disguise. A service owned by two teams will never have a clean interface. A domain that spans three teams will have three implementations. Name every misalignment before deciding how to fix it.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="phase-label" style="color: var(--accent2); margin-top: 3rem;">Phase 2 — Reshape Deliberately</div>
+
+  <div class="workflow">
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 04</span>
+        <span class="step-icon">✏️</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Design the Target Team Structure</div>
+        <p class="step-desc">Working backwards from the architecture you want: what team structure would naturally produce it? Map desired service boundaries to team ownership boundaries. Stream-aligned teams own a domain end-to-end. Platform teams provide capabilities as an internal product with an explicit API.</p>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 05</span>
+        <span class="step-icon">🚚</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Move Teams, Then Code</div>
+        <p class="step-desc">Restructure team ownership <em>before</em> restructuring the code. Once the team boundary matches the desired service boundary, the code will follow through natural feature work — not a big-bang refactor. Trying to restructure code before the org is like painting a house while the walls are still being moved.</p>
+      </div>
+    </div>
+
+    <div class="workflow-step">
+      <div class="step-marker">
+        <span class="step-num">STEP 06</span>
+        <span class="step-icon">🤖</span>
+      </div>
+      <div class="step-content">
+        <div class="step-title">Apply the AI Maneuver</div>
+        <p class="step-desc">Once teams own clean domains, deploy AI coding assistants within those boundaries. The AI generates code in the context of one team's codebase, following one team's conventions, calling one team's APIs. Conway's Law amplified by AI now works <em>for</em> you.</p>
+        <div class="prompt-block">
+"You are working within the <span class="var">[team name]</span> domain.<br>
+The services you own are: <span class="var">[list]</span>.<br>
+The external services you are allowed to call are: <span class="var">[list]</span>.<br>
+Do not suggest calling any service not on this list.<br>
+Generate code that respects these ownership boundaries."</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+```
+
+- [ ] **Step 2: Verify in browser**
+
+Expected: Two phases with colored labels (gold / purple). 6 workflow steps in a column with step numbers and icons. Prompt blocks with italic cyan variable placeholders in step 01 and step 06.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add conways-law.html
+git commit -m "feat: add Inverse Conway Protocol workflow section"
+```
+
+---
+
+## Task 6: Section 04 — Anti-Patterns (`#anti`)
+
+Add the 2-column comparison table with 4 anti-pattern rows.
+
+**Files:**
+- Modify: `conways-law.html` — add section inside `<main>`
+
+- [ ] **Step 1: Add the anti-patterns section**
+
+```html
+<section id="anti">
+  <div class="section-label">04 / What Not to Do</div>
+  <h2 class="section-title">How Teams<br>Fight the <em>Law</em></h2>
+  <p class="section-body">These are the org and architectural shortcuts that guarantee Conway's Law works against you.</p>
+
+  <div class="comparison">
+    <div class="comp-header">
+      <span class="comp-wrong">❌ The Anti-Pattern</span>
+      <span class="comp-right">✓ The Conway-Aware Approach</span>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">Design architecture first, hope org adapts. Draw the ideal microservices diagram, then ask existing teams to own slices. Teams own whatever maps to headcount, not domain expertise.</div>
+      <div class="comp-right">Design team structure first, let architecture follow. Define team ownership boundaries based on business domains. Service boundaries emerge from team boundaries without a big-bang migration.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">Shared ownership of a service. Two teams both maintain the payments service because "it's too big for one team." Every interface decision is a negotiation. Every deploy requires coordination.</div>
+      <div class="comp-right">Single team owns a domain end-to-end. One team owns payments: schema, API, deploy pipeline, on-call. Other teams treat it as an external dependency with a stable contract.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">AI tools deployed org-wide before restructuring. Every engineer uses an AI assistant in their existing context. AI accelerates feature development within existing silos. Six months later, coupling is deeper and harder to untangle.</div>
+      <div class="comp-right">Restructure teams first, then amplify with AI. Establish clean domain ownership. Deploy AI assistants within those boundaries. AI-generated code naturally follows the domain model.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">Platform team as a gatekeeper. A central platform team that all other teams file tickets to. Every infrastructure need goes through a queue — the architecture's biggest bottleneck.</div>
+      <div class="comp-right">Platform as an internal product. Platform team provides self-service capabilities with documented APIs and SLAs. Other teams adopt them without coordination. The platform team thinks like a product team.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+```
+
+- [ ] **Step 2: Verify in browser**
+
+Expected: 2-column table with red left column (anti-patterns) and green-tinted right column (correct approach). 4 data rows below the header. Responsive collapse on narrow viewports.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add conways-law.html
+git commit -m "feat: add Conway's Law anti-patterns section"
+```
+
+---
+
+## Task 7: Section 05 — Case Study (`#case`)
+
+Add the worked case study: "The Checkout Rewrite That Wasn't".
+
+**Files:**
+- Modify: `conways-law.html` — add section inside `<main>`
+
+- [ ] **Step 1: Add the case study section**
+
+```html
+<section id="case">
+  <div class="section-label">05 / Worked Example</div>
+  <h2 class="section-title">The Checkout Rewrite<br><em>That Wasn't</em></h2>
+  <p class="section-body">A real class of failure. The names and numbers are illustrative.</p>
+
+  <div class="case-study">
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Setup</div>
+      <div class="decomp-content">A mid-size e-commerce company has a monolithic checkout service owned by three teams: Payments, Fulfillment, and Frontend Platform. Every release requires a joint deploy window. Bugs in fulfillment logic delay payment fixes. The architecture team proposes splitting into three services. Six months into the rewrite, the services are more coupled than the monolith — because the teams still coordinate on everything.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Diagnosis</div>
+      <div class="decomp-content">The teams drew service boundaries on a whiteboard without changing who owned what or how decisions were made. Payments still consulted Fulfillment before changing the order state machine. Frontend Platform still needed sign-off before updating the checkout UI. The communication structure didn't change, so the architecture didn't either — it just added network hops to the existing coupling.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Maneuver</div>
+      <div class="decomp-content">The engineering director pauses the rewrite. Instead of splitting the code, she splits the ownership: <strong style="color:var(--accent3)">Payments</strong> owns payment intent, charge, and refund — full stack, schema to API. <strong style="color:var(--accent3)">Fulfillment</strong> owns order lifecycle, inventory reservation, and shipment — their own database, their own deploy. A new <strong style="color:var(--accent3)">Checkout</strong> team (carved from Frontend Platform) owns the UI and the orchestration layer that calls Payments and Fulfillment as external APIs. No code moves on week one. Ownership is documented and ratified.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Result</div>
+      <div class="decomp-content">Over the following quarter, the natural feature work of three independent teams produces the service split the rewrite couldn't. The checkout UI calls a stable Payments API and a stable Fulfillment API — not because someone architected it, but because no single engineer owned both. Conway's Law, running in the right direction.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">AI Postscript</div>
+      <div class="decomp-content">The company then rolls out AI coding assistants per team. Each AI context is scoped to one team's codebase. The Payments team's AI generates code that calls their own internal APIs and follows their schema conventions. It never suggests calling Fulfillment directly — because no one on the Payments team does. Conway's Law, amplified by AI, now works for them.</div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+```
+
+- [ ] **Step 2: Verify in browser**
+
+Expected: 5-row case study table with gold label column and content column. Each row separated by a border. Labels in DM Mono caps.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add conways-law.html
+git commit -m "feat: add Conway's Law case study section"
+```
+
+---
+
+## Task 8: Section 06 — Quiz (`#quiz`)
+
+Add 3 quiz questions using the `answer(btn, correct)` pattern.
+
+**Files:**
+- Modify: `conways-law.html` — add section inside `<main>`
+
+- [ ] **Step 1: Add the quiz section**
+
+```html
+<section id="quiz">
+  <div class="section-label">06 / Test Your Understanding</div>
+  <h2 class="section-title">The Conway's Law<br><em>Quiz</em></h2>
+  <p class="section-body">Three questions. Immediate feedback.</p>
+
+  <div class="quiz-container">
+
+    <div class="quiz-card">
+      <div class="quiz-q">A team wants to split their monolith into microservices. What should they do first?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false)">Write service contracts and OpenAPI specs</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, false)">Migrate the database to separate schemas per domain</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, true)">Restructure team ownership to match the desired service boundaries</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Identify the most-changed files and split along those lines</button>
+      </div>
+      <div class="quiz-feedback">
+        <strong class="feedback-label"></strong> Conway's Law means architecture follows the org. If you change the code before the org, the org's communication patterns will pull the architecture back. Team boundaries first; service boundaries follow.
+      </div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">Your company deploys AI coding assistants to all engineers before any restructuring. What is the most likely outcome?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false)">AI helps engineers naturally refactor toward cleaner architecture</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, true)">Existing team silos are accelerated and harder to untangle</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, false)">AI reduces the need for Conway-aware design</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Coupling decreases because AI writes more consistent code</button>
+      </div>
+      <div class="quiz-feedback">
+        <strong class="feedback-label"></strong> AI amplifies the existing pattern. Engineers generate code in their existing context, calling their existing dependencies. Misaligned team structures become architectural debt at machine speed.
+      </div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">A platform team receives 40 tickets per week from other teams requesting infrastructure changes. What is the Conway-aware fix?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false)">Hire more platform engineers to handle the ticket volume</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, false)">Embed platform engineers in each product team</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, true)">Redesign the platform as a self-service internal product with a stable API</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Consolidate all infrastructure ownership into a single larger platform team</button>
+      </div>
+      <div class="quiz-feedback">
+        <strong class="feedback-label"></strong> A ticket-driven platform team is a coupling point. Every ticket is an undocumented API call that requires human coordination. Self-service capabilities with stable contracts eliminate the synchronous dependency — and produce a cleaner architecture boundary.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
+```
+
+- [ ] **Step 2: Verify in browser**
+
+Expected: 3 quiz cards. Clicking a correct answer turns it green, shows feedback with "Correct." label. Clicking a wrong answer turns it red + strikes through, highlights the correct answer, shows feedback with "The right answer:" label. Already requires `answer()` JS from Task 4 step 3.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add conways-law.html
+git commit -m "feat: add Conway's Law quiz section"
+```
+
+---
+
+## Task 9: Section 07 — Cheatsheet + Footer
+
+Add the 6-tile cheatsheet grid and the footer.
+
+**Files:**
+- Modify: `conways-law.html` — add section + footer inside `<main>`, close `</main>`
+
+- [ ] **Step 1: Add cheatsheet and footer**
+
+```html
+<section id="cheatsheet">
+  <div class="section-label">07 / Quick Reference</div>
+  <h2 class="section-title">The Conway's Law<br><em>Cheatsheet</em></h2>
+  <p class="section-body">Keep these close when designing teams, reviewing architecture, or deploying AI tools.</p>
+
+  <div class="cheatsheet">
+    <div class="cs-item">
+      <div class="cs-icon">⚖️</div>
+      <div class="cs-title">The Law</div>
+      <ul class="cs-list">
+        <li>Systems mirror communication structures</li>
+        <li>Team boundaries become service boundaries</li>
+        <li>Coupling follows coordination overhead</li>
+        <li>You cannot architect your way out of an org problem</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🔄</div>
+      <div class="cs-title">The Maneuver</div>
+      <ul class="cs-list">
+        <li>Design team structure before system structure</li>
+        <li>One team owns one domain end-to-end</li>
+        <li>Move teams first, then let code follow</li>
+        <li>Target architecture → target team topology</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🗺️</div>
+      <div class="cs-title">Map the Mirror</div>
+      <ul class="cs-list">
+        <li>Draw real communication flows, not org charts</li>
+        <li>Overlay team map onto service map</li>
+        <li>Shared ownership = future coupling</li>
+        <li>Every coordination meeting is a tight coupling</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🚩</div>
+      <div class="cs-title">Warning Signs</div>
+      <ul class="cs-list">
+        <li>Two teams own the same service</li>
+        <li>Deploys require cross-team coordination</li>
+        <li>A platform team runs on tickets</li>
+        <li>AI tools deployed before restructuring</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">🤖</div>
+      <div class="cs-title">AI Application</div>
+      <ul class="cs-list">
+        <li>Restructure teams before deploying AI</li>
+        <li>Scope AI context to team's owned domain</li>
+        <li>AI amplifies existing patterns — align them first</li>
+        <li>"You work within [team] domain. Owned services: [list]."</li>
+      </ul>
+    </div>
+    <div class="cs-item">
+      <div class="cs-icon">✅</div>
+      <div class="cs-title">The Standard</div>
+      <ul class="cs-list">
+        <li>Can this team deploy without coordination?</li>
+        <li>Does one team own this domain end-to-end?</li>
+        <li>Is the platform self-service with a stable API?</li>
+        <li>Would AI context naturally respect this boundary?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>Conway's Law · Software Engineering with AI</span>
+  <span>A mental model series</span>
+</footer>
+```
+
+- [ ] **Step 2: Verify in browser**
+
+Expected: 6-tile grid (2 columns on wide screens, 1 on narrow). Each tile has emoji icon, gold title, and arrow list items. Footer with two text spans at bottom of page.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add conways-law.html
+git commit -m "feat: add Conway's Law cheatsheet and footer"
+```
+
+---
+
+## Task 10: JavaScript — theme, quiz, scroll animations
+
+Replace the temporary `<script>` block (added in Task 4) with the complete JS.
+
+**Files:**
+- Modify: `conways-law.html` — replace existing `<script>` tag with complete version
+
+- [ ] **Step 1: Replace the script block**
+
+Find and replace the existing `<script>` block (containing `togglePrinciple`) with:
+
+```html
+<script>
+  // ── BACK TO TOP ──
+  const backToTop = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    backToTop.classList.toggle('visible', window.scrollY > 300);
+  }, { passive: true });
+
+  // ── THEME ──
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const icon = document.getElementById('theme-icon');
+
+  const saved = localStorage.getItem('theme');
+  if (saved) {
+    root.setAttribute('data-theme', saved);
+    icon.textContent = saved === 'light' ? '🌙' : '☀️';
+  }
+
+  toggle.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    icon.textContent = next === 'light' ? '🌙' : '☀️';
+  });
+
+  // ── EXPANDABLE CARDS ──
+  function togglePrinciple(el) {
+    const isActive = el.classList.contains('active');
+    document.querySelectorAll('.principle-card').forEach(c => c.classList.remove('active'));
+    if (!isActive) el.classList.add('active');
+  }
+
+  // ── QUIZ ──
+  function answer(btn, correct) {
+    const card = btn.closest('.quiz-card');
+    if (card.querySelector('.answered')) return;
+    const feedback = card.querySelector('.quiz-feedback');
+    card.querySelectorAll('.quiz-option').forEach(b => {
+      b.classList.add('answered');
+      b.style.pointerEvents = 'none';
+    });
+    btn.classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) {
+      card.querySelectorAll('.quiz-option').forEach(b => {
+        if (b.getAttribute('onclick').includes('true')) b.classList.add('correct');
+      });
+    }
+    feedback.querySelector('.feedback-label').textContent = correct ? 'Correct.' : 'The right answer:';
+    feedback.classList.add('show', correct ? 'good' : 'bad');
+  }
+
+  // ── SCROLL ANIMATIONS ──
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('section, .principle-card, .workflow-step, .comp-row, .cs-item, .quiz-card').forEach(el => {
+    el.classList.add('observe');
+    observer.observe(el);
+  });
+</script>
+```
+
+- [ ] **Step 2: Full verification pass**
+
+Check all interactive behaviors:
+- Theme toggle: click ☀️ → switches to light mode, persists on reload → click 🌙 → back to dark
+- Back-to-top: scroll down → button appears bottom-right → click → scrolls to top
+- Principles: click a card → expands. Click another → first collapses, second opens
+- Quiz Q1: click correct answer C → turns green, "Correct." feedback appears
+- Quiz Q1: reload, click wrong answer → turns red, correct answer highlighted, "The right answer:" appears
+- Scroll: sections fade in as you scroll down
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add conways-law.html
+git commit -m "feat: add complete JavaScript for Conway's Law page"
+```
+
+---
+
+## Task 11: Update `index.html` — activate Model 04 card
+
+Convert the Conway's Law "coming soon" card to a live link.
+
+**Files:**
+- Modify: `index.html`
+
+- [ ] **Step 1: Replace the coming-soon card**
+
+Find this block in `index.html`:
+
+```html
+    <div class="topic-card coming-soon fade-in">
+      <span class="card-number">Model 04</span>
+      <h2 class="card-title">Conway's<br><em>Law</em></h2>
+      <p class="card-desc">Your system architecture will mirror your team structure whether you intend it or not. Design your org to design your system.</p>
+      <span class="card-tag">Coming soon</span>
+    </div>
+```
+
+Replace with:
+
+```html
+    <a class="topic-card fade-in" href="conways-law.html">
+      <span class="card-number">Model 04</span>
+      <h2 class="card-title">Conway's<br><em>Law</em></h2>
+      <p class="card-desc">Your system architecture will mirror your team structure whether you intend it or not. Design your org to design your system.</p>
+      <span class="card-tag">Architecture</span>
+    </a>
+```
+
+- [ ] **Step 2: Verify index.html**
+
+Open `index.html` in browser. Expected:
+- Model 04 card is now fully opaque, not faded/dashed
+- Hovering shows purple border + lift animation
+- Clicking navigates to `conways-law.html`
+- Topic counter updates: "4 of 6 published"
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add index.html
+git commit -m "feat: activate Conway's Law card on index — Model 04 live"
+```
+
+---
+
+## Verification Checklist
+
+Before declaring done, run through this full checklist on `conways-law.html`:
+
+- [ ] Page loads without console errors
+- [ ] Dark mode is default; light mode toggle works and persists
+- [ ] Home button links to `index.html`
+- [ ] All 7 nav pills scroll to correct sections
+- [ ] All 5 principle cards expand/collapse correctly (accordion behavior)
+- [ ] Example boxes visible in expanded cards
+- [ ] Both phases of the protocol render with correct label colors
+- [ ] Prompt blocks render with italic cyan `.var` spans
+- [ ] Anti-patterns table: 2 columns, 4 data rows
+- [ ] Case study: 5 rows with gold labels
+- [ ] Quiz Q1: correct answer = C; Q2 = B; Q3 = C
+- [ ] Quiz feedback label shows "Correct." or "The right answer:" correctly
+- [ ] Cheatsheet: 6 tiles, each with emoji + title + 4 list items
+- [ ] Back-to-top button appears after scrolling, disappears at top
+- [ ] Scroll animations trigger on all sections and cards
+- [ ] Responsive layout works at mobile width (stack columns)
+- [ ] `index.html` Model 04 card is live, clickable, tag reads "Architecture"
