@@ -938,6 +938,43 @@ Generate code that respects these ownership boundaries."</div>
 </section>
 
 <hr class="divider">
+
+<section id="case">
+  <div class="section-label">05 / Worked Example</div>
+  <h2 class="section-title">The Checkout Rewrite<br><em>That Wasn't</em></h2>
+  <p class="section-body">A real class of failure. The names and numbers are illustrative.</p>
+
+  <div class="case-study">
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Setup</div>
+      <div class="decomp-content">A mid-size e-commerce company has a monolithic checkout service owned by three teams: Payments, Fulfillment, and Frontend Platform. Every release requires a joint deploy window. Bugs in fulfillment logic delay payment fixes. The architecture team proposes splitting into three services. Six months into the rewrite, the services are more coupled than the monolith — because the teams still coordinate on everything.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Diagnosis</div>
+      <div class="decomp-content">The teams drew service boundaries on a whiteboard without changing who owned what or how decisions were made. Payments still consulted Fulfillment before changing the order state machine. Frontend Platform still needed sign-off before updating the checkout UI. The communication structure didn't change, so the architecture didn't either — it just added network hops to the existing coupling.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Maneuver</div>
+      <div class="decomp-content">The engineering director pauses the rewrite. Instead of splitting the code, she splits the ownership: <strong style="color:var(--accent3)">Payments</strong> owns payment intent, charge, and refund — full stack, schema to API. <strong style="color:var(--accent3)">Fulfillment</strong> owns order lifecycle, inventory reservation, and shipment — their own database, their own deploy. A new <strong style="color:var(--accent3)">Checkout</strong> team (carved from Frontend Platform) owns the UI and the orchestration layer that calls Payments and Fulfillment as external APIs. No code moves on week one. Ownership is documented and ratified.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">The Result</div>
+      <div class="decomp-content">Over the following quarter, the natural feature work of three independent teams produces the service split the rewrite couldn't. The checkout UI calls a stable Payments API and a stable Fulfillment API — not because someone architected it, but because no single engineer owned both. Conway's Law, running in the right direction.</div>
+    </div>
+
+    <div class="decomp-item">
+      <div class="decomp-label">AI Postscript</div>
+      <div class="decomp-content">The company then rolls out AI coding assistants per team. Each AI context is scoped to one team's codebase. The Payments team's AI generates code that calls their own internal APIs and follows their schema conventions. It never suggests calling Fulfillment directly — because no one on the Payments team does. Conway's Law, amplified by AI, now works for them.</div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
 </main>
 
 <script>
