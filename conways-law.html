@@ -975,6 +975,58 @@ Generate code that respects these ownership boundaries."</div>
 </section>
 
 <hr class="divider">
+</section>
+
+<section id="quiz">
+  <div class="section-label">06 / Test Your Understanding</div>
+  <h2 class="section-title">The Conway's Law<br><em>Quiz</em></h2>
+  <p class="section-body">Three questions. Immediate feedback.</p>
+
+  <div class="quiz-container">
+
+    <div class="quiz-card">
+      <div class="quiz-q">A team wants to split their monolith into microservices. What should they do first?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false)">Write service contracts and OpenAPI specs</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, false)">Migrate the database to separate schemas per domain</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, true)">Restructure team ownership to match the desired service boundaries</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Identify the most-changed files and split along those lines</button>
+      </div>
+      <div class="quiz-feedback">
+        <strong class="feedback-label"></strong> Conway's Law means architecture follows the org. If you change the code before the org, the org's communication patterns will pull the architecture back. Team boundaries first; service boundaries follow.
+      </div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">Your company deploys AI coding assistants to all engineers before any restructuring. What is the most likely outcome?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false)">AI helps engineers naturally refactor toward cleaner architecture</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, true)">Existing team silos are accelerated and harder to untangle</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, false)">AI reduces the need for Conway-aware design</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Coupling decreases because AI writes more consistent code</button>
+      </div>
+      <div class="quiz-feedback">
+        <strong class="feedback-label"></strong> AI amplifies the existing pattern. Engineers generate code in their existing context, calling their existing dependencies. Misaligned team structures become architectural debt at machine speed.
+      </div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="quiz-q">A platform team receives 40 tickets per week from other teams requesting infrastructure changes. What is the Conway-aware fix?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-letter="A" onclick="answer(this, false)">Hire more platform engineers to handle the ticket volume</button>
+        <button class="quiz-option" data-letter="B" onclick="answer(this, false)">Embed platform engineers in each product team</button>
+        <button class="quiz-option" data-letter="C" onclick="answer(this, true)">Redesign the platform as a self-service internal product with a stable API</button>
+        <button class="quiz-option" data-letter="D" onclick="answer(this, false)">Consolidate all infrastructure ownership into a single larger platform team</button>
+      </div>
+      <div class="quiz-feedback">
+        <strong class="feedback-label"></strong> A ticket-driven platform team is a coupling point. Every ticket is an undocumented API call that requires human coordination. Self-service capabilities with stable contracts eliminate the synchronous dependency — and produce a cleaner architecture boundary.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider">
 </main>
 
 <script>
@@ -982,6 +1034,24 @@ Generate code that respects these ownership boundaries."</div>
     const isActive = el.classList.contains('active');
     document.querySelectorAll('.principle-card').forEach(c => c.classList.remove('active'));
     if (!isActive) el.classList.add('active');
+  }
+
+  function answer(btn, correct) {
+    const card = btn.closest('.quiz-card');
+    if (card.querySelector('.answered')) return;
+    const feedback = card.querySelector('.quiz-feedback');
+    card.querySelectorAll('.quiz-option').forEach(b => {
+      b.classList.add('answered');
+      b.style.pointerEvents = 'none';
+    });
+    btn.classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) {
+      card.querySelectorAll('.quiz-option').forEach(b => {
+        if (b.getAttribute('onclick').includes('true')) b.classList.add('correct');
+      });
+    }
+    feedback.querySelector('.feedback-label').textContent = correct ? 'Correct.' : 'The right answer:';
+    feedback.classList.add('show', correct ? 'good' : 'bad');
   }
 </script>
 
