@@ -22,7 +22,16 @@ A standalone educational HTML page on Conway's Law, consistent with the existing
 **Title:** Conway's / *Law*
 **Subtitle:** Your system architecture will mirror your team structure whether you plan it or not. The Inverse Conway Maneuver turns that from a warning into a weapon.
 
-**Nav pills:** What it is · 5 Principles · The Maneuver · Anti-Patterns · Case Study · Quiz · Cheatsheet
+**Nav pills (anchor → label):**
+- `#what` → "What it is"
+- `#principles` → "5 Principles"
+- `#maneuver` → "The Maneuver"
+- `#anti` → "Anti-Patterns"
+- `#case` → "Case Study"
+- `#quiz` → "Quiz"
+- `#cheatsheet` → "Cheatsheet"
+
+Note: pill labels do not need to match section titles exactly — the anchor mapping above is the authoritative reference.
 
 ---
 
@@ -138,7 +147,7 @@ Generate code that respects these ownership boundaries.
 
 ## Section 04 — Anti-Patterns (`#anti`)
 
-Comparison table: 4 rows, wrong vs. Conway-aware.
+Comparison table: **2-column layout** matching the `#anti` section pattern from `chesterton-fence.html` (left column = wrong approach, right column = Conway-aware approach). Uses `.comparison`, `.comp-header`, `.comp-row` CSS classes. Not the 3-column `.comp-row` pattern used for principles.
 
 | Anti-Pattern | Conway-Aware Approach |
 |---|---|
@@ -180,8 +189,8 @@ No code moves on week one. Ownership boundaries are drawn, documented, and ratif
 - C) **Restructure team ownership to match desired service boundaries** ✓
 - D) Identify the most-changed files and split along those lines
 
-*Correct:* Conway's Law means architecture follows the org. Change the org first; the code follows.
-*Wrong:* Specs and schemas are premature — they'll be renegotiated along team lines anyway.
+*Correct (`.feedback-label` text: "Correct." + body):* Conway's Law means architecture follows the org. Change the org first; the code follows.
+*Wrong (`.feedback-label` text: "The right answer:" + body):* Specs and schemas are premature — they'll be renegotiated along team lines anyway.
 
 **Q2:** Your company deploys AI coding assistants to all engineers before any restructuring. What is the most likely outcome?
 - A) AI helps engineers naturally refactor toward cleaner architecture
@@ -189,8 +198,8 @@ No code moves on week one. Ownership boundaries are drawn, documented, and ratif
 - C) AI reduces the need for Conway-aware design
 - D) Coupling decreases because AI writes more consistent code
 
-*Correct:* AI amplifies the existing pattern. Misaligned team structures become architectural debt at machine speed.
-*Wrong:* AI has no awareness of org structure. It generates code in whatever context the engineer provides.
+*Correct (`.feedback-label` text: "Correct." + body):* AI amplifies the existing pattern. Misaligned team structures become architectural debt at machine speed.
+*Wrong (`.feedback-label` text: "The right answer:" + body):* AI has no awareness of org structure. It generates code in whatever context the engineer provides.
 
 **Q3:** A platform team receives 40 tickets per week from other teams. What is the Conway-aware fix?
 - A) Hire more platform engineers to handle ticket volume
@@ -198,8 +207,8 @@ No code moves on week one. Ownership boundaries are drawn, documented, and ratif
 - C) **Redesign the platform as a self-service internal product with a stable API** ✓
 - D) Consolidate all infrastructure into a single larger platform team
 
-*Correct:* A ticket-driven platform is a coupling point. Self-service capabilities with stable contracts eliminate the synchronous dependency.
-*Wrong:* Scaling a bottleneck doesn't remove it. The fix is to change the interface: from "file a ticket" to "call an API."
+*Correct (`.feedback-label` text: "Correct." + body):* A ticket-driven platform is a coupling point. Self-service capabilities with stable contracts eliminate the synchronous dependency.
+*Wrong (`.feedback-label` text: "The right answer:" + body):* Scaling a bottleneck doesn't remove it. The fix is to change the interface: from "file a ticket" to "call an API."
 
 ---
 
@@ -207,14 +216,14 @@ No code moves on week one. Ownership boundaries are drawn, documented, and ratif
 
 6-tile grid.
 
-| Tile | Items |
-|---|---|
-| The Law | Systems mirror communication structures · Team boundaries become service boundaries · Coupling follows coordination overhead · You cannot architect your way out of an org problem |
-| The Maneuver | Design team structure before system structure · One team owns one domain end-to-end · Move teams first, then let code follow · Target architecture → target team topology |
-| Map the Mirror | Draw real communication flows, not org charts · Overlay team map onto service map · Shared ownership = future coupling · Every coordination meeting is a tight coupling |
-| Warning Signs | Two teams own the same service · Deploys require cross-team coordination · A platform team runs on tickets · AI tools deployed before restructuring |
-| AI Application | Restructure teams before deploying AI · Scope AI context to team's owned domain · AI amplifies existing patterns — align them first · "You work within [team] domain. Owned services: [list]." |
-| The Standard | Can this team deploy without coordination? · Does one team own this domain end-to-end? · Is the platform self-service with a stable API? · Would AI context naturally respect this boundary? |
+| Emoji | Tile | Items |
+|---|---|---|
+| ⚖️ | The Law | Systems mirror communication structures · Team boundaries become service boundaries · Coupling follows coordination overhead · You cannot architect your way out of an org problem |
+| 🔄 | The Maneuver | Design team structure before system structure · One team owns one domain end-to-end · Move teams first, then let code follow · Target architecture → target team topology |
+| 🗺️ | Map the Mirror | Draw real communication flows, not org charts · Overlay team map onto service map · Shared ownership = future coupling · Every coordination meeting is a tight coupling |
+| 🚩 | Warning Signs | Two teams own the same service · Deploys require cross-team coordination · A platform team runs on tickets · AI tools deployed before restructuring |
+| 🤖 | AI Application | Restructure teams before deploying AI · Scope AI context to team's owned domain · AI amplifies existing patterns — align them first · "You work within [team] domain. Owned services: [list]." |
+| ✅ | The Standard | Can this team deploy without coordination? · Does one team own this domain end-to-end? · Is the platform self-service with a stable API? · Would AI context naturally respect this boundary? |
 
 ---
 
@@ -225,7 +234,7 @@ Follows all conventions from `CLAUDE.md` and `first-principles.html`:
 - Self-contained HTML, all CSS and JS embedded
 - CSS custom properties on `:root` (dark default) and `[data-theme="light"]`
 - `@media (prefers-color-scheme: light)` on `:root:not([data-theme="dark"])`
-- Standard variable names: `--bg`, `--surface`, `--surface2`, `--border`, `--accent`, `--accent2`, `--accent3`, `--text`, `--muted`, `--danger`
+- Standard variable names: `--bg`, `--surface`, `--surface2`, `--border`, `--accent`, `--accent2`, `--accent3`, `--text`, `--muted`, `--danger`, `--toggle-bg`, `--toggle-border`
 - Fixed `#home-btn` top-left, `#theme-toggle` top-right, `#back-to-top` bottom-right
 - Theme persisted to `localStorage` under key `theme`
 - `togglePrinciple(el)` for expandable cards
