@@ -907,6 +907,37 @@ Generate code that respects these ownership boundaries."</div>
 </section>
 
 <hr class="divider">
+
+<section id="anti">
+  <div class="section-label">04 / What Not to Do</div>
+  <h2 class="section-title">How Teams<br>Fight the <em>Law</em></h2>
+  <p class="section-body">These are the org and architectural shortcuts that guarantee Conway's Law works against you.</p>
+
+  <div class="comparison">
+    <div class="comp-header">
+      <span class="comp-wrong">❌ The Anti-Pattern</span>
+      <span class="comp-right">✓ The Conway-Aware Approach</span>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">Design architecture first, hope org adapts. Draw the ideal microservices diagram, then ask existing teams to own slices. Teams own whatever maps to headcount, not domain expertise.</div>
+      <div class="comp-right">Design team structure first, let architecture follow. Define team ownership boundaries based on business domains. Service boundaries emerge from team boundaries without a big-bang migration.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">Shared ownership of a service. Two teams both maintain the payments service because "it's too big for one team." Every interface decision is a negotiation. Every deploy requires coordination.</div>
+      <div class="comp-right">Single team owns a domain end-to-end. One team owns payments: schema, API, deploy pipeline, on-call. Other teams treat it as an external dependency with a stable contract.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">AI tools deployed org-wide before restructuring. Every engineer uses an AI assistant in their existing context. AI accelerates feature development within existing silos. Six months later, coupling is deeper and harder to untangle.</div>
+      <div class="comp-right">Restructure teams first, then amplify with AI. Establish clean domain ownership. Deploy AI assistants within those boundaries. AI-generated code naturally follows the domain model.</div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-wrong">Platform team as a gatekeeper. A central platform team that all other teams file tickets to. Every infrastructure need goes through a queue — the architecture's biggest bottleneck.</div>
+      <div class="comp-right">Platform as an internal product. Platform team provides self-service capabilities with documented APIs and SLAs. Other teams adopt them without coordination. The platform team thinks like a product team.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
 </main>
 
 <script>
